@@ -1,25 +1,28 @@
-import User from '#models/user'
-import { loginValidator } from '#validators/user'
+import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
+import AuthService from '#services/auth_service'
 import UserTransformer from '#transformers/user_transformer'
+import { loginValidator } from '#validators/user'
 
+@inject()
 export default class AccessTokensController {
+  constructor(protected authService: AuthService) {}
+
   async store({ request, serialize }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)
 
-    const user = await User.verifyCredentials(email, password)
-    const token = await User.accessTokens.create(user)
+    const { user, token } = await this.authService.login(email, password)
 
     return serialize({
       user: UserTransformer.transform(user),
-      token: token.value!.release(),
+      token,
     })
   }
 
   async destroy({ auth }: HttpContext) {
     const user = auth.getUserOrFail()
     if (user.currentAccessToken) {
-      await User.accessTokens.delete(user, user.currentAccessToken.identifier)
+      await this.authService.logout(user, user.currentAccessToken)
     }
 
     return {

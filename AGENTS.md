@@ -26,6 +26,10 @@ Routes import controllers from `#generated/controllers` (mapped to `.adonisjs/se
 - **All tables use UUID primary keys**: `table.uuid('id').primary().defaultTo(this.db.knexRawQuery('gen_random_uuid()'))` — never `increments()`. Foreign-key columns (e.g. `tokenable_id`) are `uuid` matching the referenced table's primary key. `gen_random_uuid()` is built into Postgres 13+; no extension needed.
 - `database/schema.ts` is auto-generated (header says "DO NOT EDIT") by `node ace migration:run` — `schemaGeneration` is enabled on the pg connection in `config/database.ts`. Don't edit it manually; after changing migrations, run migrations so it regenerates.
 - Auth is bearer access tokens (`@adonisjs/auth` `tokensGuard`, `accessTokens` relation on `User`). New endpoints under `/api/v1` should follow the existing group/prefix style in `start/routes.ts`.
+- **Services (`app/services/`) hold business logic**: controllers (and other callers) delegate to service classes instead of implementing logic themselves. Controllers stay thin: validate input → call service → `serialize()`. Conventions:
+  - Domain concept in **singular form** + `Service` suffix → class `InvoiceService` in file `invoice_service.ts` (snake_case, default export).
+  - Dependencies via constructor injection with `@inject()` from `@adonisjs/core` (e.g. Lucid `Database`); the container resolves them automatically.
+  - Services are HTTP-agnostic: never import or use `HttpContext` — controllers pass plain data in/out. This keeps them reusable by CLI commands and tests.
 - Env is validated in `start/env.ts`; `APP_KEY` is required to boot (never commit `.env`).
 
 ## Notes
