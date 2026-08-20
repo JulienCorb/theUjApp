@@ -19,6 +19,8 @@ router
   .group(() => {
     router
       .group(() => {
+        // TODO: add rate limiting (@adonisjs/throttler) on signup/login to
+        // prevent brute-force credential attacks and mass account creation.
         router.post('signup', [controllers.NewAccount, 'store'])
         router.post('login', [controllers.AccessTokens, 'store'])
       })
