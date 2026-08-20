@@ -23,10 +23,11 @@ Routes import controllers from `#generated/controllers` (mapped to `.adonisjs/se
 ## Repo conventions
 
 - **All API responses are wrapped in a `data` key**: use `serialize()` from `HttpContext` (e.g. `return serialize(data)`); `serialize.withoutWrapping` opts out. Implemented in `providers/api_provider.ts` — do not return raw objects from controllers.
+- **All tables use UUID primary keys**: `table.uuid('id').primary().defaultTo(this.db.knexRawQuery('gen_random_uuid()'))` — never `increments()`. Foreign-key columns (e.g. `tokenable_id`) are `uuid` matching the referenced table's primary key. `gen_random_uuid()` is built into Postgres 13+; no extension needed.
+- `database/schema.ts` is auto-generated (header says "DO NOT EDIT") by `node ace migration:run` — `schemaGeneration` is enabled on the pg connection in `config/database.ts`. Don't edit it manually; after changing migrations, run migrations so it regenerates.
 - Auth is bearer access tokens (`@adonisjs/auth` `tokensGuard`, `accessTokens` relation on `User`). New endpoints under `/api/v1` should follow the existing group/prefix style in `start/routes.ts`.
-- `database/schema.ts` is auto-generated (header says "DO NOT EDIT"); it predates the SQLite→PostgreSQL switch and is stale — `schemaGeneration` was removed from `config/database.ts`.
 - Env is validated in `start/env.ts`; `APP_KEY` is required to boot (never commit `.env`).
 
-## WIP / uncommitted
+## Notes
 
-The SQLite→PostgreSQL migration is uncommitted work in progress: `config/database.ts`, `start/env.ts`, `.env.example`, `.env.test`, `package.json` are modified on disk. Don't revert them or assume the committed state is canonical.
+Migrations have **not** been run against Postgres yet — run `node ace migration:run` (and `NODE_ENV=test node ace migration:run` for the test DB) before booting/testing. `database/schema.ts` is stale (`id` typed as `number`) until then, since `schemaGeneration` regenerates it on `migration:run`.
