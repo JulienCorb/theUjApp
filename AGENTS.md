@@ -16,7 +16,7 @@ Routes import controllers from `#generated/controllers` (mapped to `.adonisjs/se
 
 ## Tests
 
-- `bin/test.ts` sets `NODE_ENV=test`, so `.env.test` is loaded: DB is `the_uj_app_test` (user `julienc`), `SESSION_DRIVER=memory`.
+- `bin/test.ts` sets `NODE_ENV=test`, so `.env.test` is loaded: DB is `the_uj_app_test` (user `julienc`).
 - Runner hooks do **not** migrate the DB — apply migrations to the test DB first: `NODE_ENV=test node ace migration:run`. Tests hit a real PostgreSQL instance, so it must be running.
 - Functional suite boots the HTTP server automatically (`tests/bootstrap.ts`).
 
