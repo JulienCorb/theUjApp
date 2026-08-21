@@ -21,5 +21,8 @@ export const signupValidator = vine.create({
  */
 export const loginValidator = vine.create({
   email: email(),
+  // TODO(security): add a maxLength bound (e.g. 1024) to the login password.
+  // Without it, an attacker can send arbitrarily large password strings,
+  // forcing the server to hash megabytes of input on every request (DoS vector).
   password: vine.string(),
 })

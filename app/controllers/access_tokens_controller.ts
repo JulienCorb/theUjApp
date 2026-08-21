@@ -25,6 +25,9 @@ export default class AccessTokensController {
       await this.authService.logout(user, user.currentAccessToken)
     }
 
+    // TODO(security/consistency): wrap this response in serialize() like all other
+    // endpoints. Returning a raw object bypasses the `data` wrapper enforced by
+    // the ApiSerializer provider and breaks the API contract.
     return {
       message: 'Logged out successfully',
     }

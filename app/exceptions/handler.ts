@@ -5,6 +5,10 @@ export default class HttpExceptionHandler extends ExceptionHandler {
   /**
    * In debug mode, the exception handler will display verbose errors
    * with pretty printed stack traces.
+   *
+   * TODO(security): ensure staging/preview environments run with NODE_ENV=production
+   * so that `debug` is false. In non-production mode, full stack traces and internal
+   * error details are returned to clients, leaking implementation details.
    */
   protected debug = !app.inProduction
 
