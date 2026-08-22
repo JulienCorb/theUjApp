@@ -18,8 +18,6 @@ export default class AuthService {
     // "Foo@Bar.com" and "foo@bar.com" are treated as two separate accounts, which
     // breaks the unique constraint's intent and causes login inconsistencies.
     const user = await User.create({ email, password })
-    // TODO(security): set an expiry on access tokens (e.g. expiresAt: 7 days).
-    // Currently tokens never expire, so a stolen token is valid forever.
     const token = await User.accessTokens.create(user)
 
     return { user, token: token.value!.release() }
@@ -35,8 +33,6 @@ export default class AuthService {
     // to match the normalization applied on signup — otherwise a user who signed up
     // as "Foo@Bar.com" cannot log in as "foo@bar.com".
     const user = await User.verifyCredentials(email, password)
-    // TODO(security): set an expiry on access tokens (e.g. expiresAt: 7 days).
-    // Currently tokens never expire, so a stolen token is valid forever.
     const token = await User.accessTokens.create(user)
 
     return { user, token: token.value!.release() }
