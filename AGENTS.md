@@ -25,11 +25,24 @@ Routes import controllers from `#generated/controllers` (mapped to `.adonisjs/se
 - **All API responses are wrapped in a `data` key**: use `serialize()` from `HttpContext` (e.g. `return serialize(data)`); `serialize.withoutWrapping` opts out. Implemented in `providers/api_provider.ts` — do not return raw objects from controllers.
 - **All tables use UUID primary keys**: `table.uuid('id').primary().defaultTo(this.db.knexRawQuery('gen_random_uuid()'))` — never `increments()`. Foreign-key columns (e.g. `tokenable_id`) are `uuid` matching the referenced table's primary key. `gen_random_uuid()` is built into Postgres 13+; no extension needed.
 - `database/schema.ts` is auto-generated (header says "DO NOT EDIT") by `node ace migration:run` — `schemaGeneration` is enabled on the pg connection in `config/database.ts`. Don't edit it manually; after changing migrations, run migrations so it regenerates.
-- Auth is bearer access tokens (`@adonisjs/auth` `tokensGuard`, `accessTokens` relation on `User`). New endpoints under `/api/v1` should follow the existing group/prefix style in `start/routes.ts`.
-- **Services (`app/services/`) hold business logic**: controllers (and other callers) delegate to service classes instead of implementing logic themselves. Controllers stay thin: validate input → call service → `serialize()`. Conventions:
+- Auth is bearer access tokens (`@adonisjs/auth` `tokensGuard`, `accessTokens` relation on `User`). Authorization via `@adonisjs/bouncer` — policies in `app/policies/`, abilities in `app/abilities/`, `InitializeBouncerMiddleware` runs on all routed requests and exposes `ctx.bouncer`. New endpoints under `/api/v1` should follow the existing group/prefix style in `start/routes.ts`.
+- **Controllers (`app/controllers/`) have four responsibilities** — keep them thin and limited to:
+  1. **Validation** — validate input via VineJS (`request.validateUsing(...)`).
+  2. **Authorization** — check permissions via `ctx.bouncer.with(Policy).authorize('action', resource)` or `ctx.bouncer.authorize(ability, ...)`. Never skip this for resource-scoped endpoints; authenticated ≠ authorized.
+  3. **Service calls** — delegate business logic to service classes via constructor DI (`@inject()`).
+  4. **Serialization** — wrap all responses in `serialize()` from `HttpContext`; never return raw objects (use `serialize.withoutWrapping` to opt out).
+- **Services (`app/services/`) hold business logic**: controllers (and other callers) delegate to service classes instead of implementing logic themselves. Conventions:
   - Domain concept in **singular form** + `Service` suffix → class `InvoiceService` in file `invoice_service.ts` (snake_case, default export).
   - Dependencies via constructor injection with `@inject()` from `@adonisjs/core` (e.g. Lucid `Database`); the container resolves them automatically.
   - Services are HTTP-agnostic: never import or use `HttpContext` — controllers pass plain data in/out. This keeps them reusable by CLI commands and tests.
+- **Policies (`app/policies/`) group authorization checks per resource** — one policy per domain model. Conventions:
+  - File naming: `invoice_policy.ts` (snake_case, default export), class `InvoicePolicy extends BasePolicy` from `@adonisjs/bouncer`.
+  - One method per action (`view`, `create`, `update`, `delete`); each receives `user` first, then the resource. Return `AuthorizerResponse` (boolean or `AuthorizationResponse.allow()/deny()`).
+  - Use a `before` hook for admin bypass when roles are introduced: `before(user, action) { if (user?.role === 'admin') return true }`.
+  - Dependency injection works in policies — add `@inject()` and inject via constructor (e.g. `Database`, services).
+  - Ownership convention: user-scoped resources must have a `userId` UUID FK referencing `users.id`; policies check `user.id === resource.userId`.
+  - Reference by class import (`bouncer.with(InvoicePolicy)`) or string name (`bouncer.with('InvoicePolicy')`) — the string form uses the codegen barrel in `.adonisjs/server/policies.ts`.
+  - Self-scoped endpoints (where the resource is the authenticated user) still use a policy for consistency.
 - Env is validated in `start/env.ts`; `APP_KEY` is required to boot (never commit `.env`).
 
 ## Notes
