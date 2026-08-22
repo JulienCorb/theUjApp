@@ -14,10 +14,8 @@ export default class AuthService {
    * Creates a new user account and issues an access token for it.
    */
   async register(email: string, password: string) {
-    // TODO(security): normalize email (trim + lowercase) before persisting, otherwise
-    // "Foo@Bar.com" and "foo@bar.com" are treated as two separate accounts, which
-    // breaks the unique constraint's intent and causes login inconsistencies.
-    const user = await User.create({ email, password })
+    const normalizedEmail = email.trim().toLowerCase()
+    const user = await User.create({ email: normalizedEmail, password })
     const token = await User.accessTokens.create(user)
 
     return { user, token: token.value!.release() }
@@ -29,10 +27,8 @@ export default class AuthService {
    * @throws {@link E_INVALID_CREDENTIALS} when the credentials are invalid
    */
   async login(email: string, password: string) {
-    // TODO(security): normalize email (trim + lowercase) before verifying credentials,
-    // to match the normalization applied on signup — otherwise a user who signed up
-    // as "Foo@Bar.com" cannot log in as "foo@bar.com".
-    const user = await User.verifyCredentials(email, password)
+    const normalizedEmail = email.trim().toLowerCase()
+    const user = await User.verifyCredentials(normalizedEmail, password)
     const token = await User.accessTokens.create(user)
 
     return { user, token: token.value!.release() }

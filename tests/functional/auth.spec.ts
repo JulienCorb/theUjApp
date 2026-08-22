@@ -1,6 +1,6 @@
 /**
- * TODO(security): add functional tests covering the auth flows:
- * - signup creates a user and returns a token
+ * add functional tests covering the auth flows:
+ * - signup creates a user and returns a token (with normalized email)
  * - login with correct credentials succeeds
  * - login with wrong credentials fails (401)
  * - duplicate email signup is rejected (422)
