@@ -1,0 +1,9 @@
+packages:
+  - apps/*
+
+# pnpm 10 blocks dependency lifecycle scripts by default (supply-chain safety).
+# Native packages below need install-time scripts to fetch/compile their binaries.
+onlyBuiltDependencies:
+  - '@swc/core' # Rust-based TS compiler used by Adonis (@poppinss/ts-exec) — downloads platform native binding
+  - esbuild # bundler behind `node ace build` — installs the native Go binary for your OS/arch
+  - fsevents # macOS file-watcher used by HMR/hot-hook — compiles/downloads a native module
