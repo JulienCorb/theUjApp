@@ -1,6 +1,7 @@
 import { assert } from '@japa/assert'
 import { apiClient } from '@japa/api-client'
 import app from '@adonisjs/core/services/app'
+import hash from '@adonisjs/core/services/hash'
 import type { Config } from '@japa/runner/types'
 import { pluginAdonisJS } from '@japa/plugin-adonisjs'
 import { dbAssertions } from '@adonisjs/lucid/plugins/db'
@@ -9,16 +10,9 @@ import { authApiClient } from '@adonisjs/auth/plugins/api_client'
 
 import type { Registry } from '../.adonisjs/client/registry/schema.d.ts'
 
-/**
- * This file is imported by the "bin/test.ts" entrypoint file
- */
 declare module '@japa/api-client/types' {
   interface RoutesRegistry extends Registry {}
 }
-
-/**
- * This file is imported by the "bin/test.ts" entrypoint file
- */
 
 /**
  * Configure Japa plugins in the plugins array.
@@ -40,7 +34,7 @@ export const plugins: Config['plugins'] = [
  * The teardown functions are executed after all the tests
  */
 export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
-  setup: [],
+  setup: [() => testUtils.db().migrate()],
   teardown: [],
 }
 
@@ -49,6 +43,11 @@ export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
  * Learn more - https://japa.dev/docs/test-suites#lifecycle-hooks
  */
 export const configureSuite: Config['configureSuite'] = (suite) => {
+  suite.setup(() => {
+    hash.fake()
+    return () => hash.restore()
+  })
+
   if (['browser', 'functional', 'e2e'].includes(suite.name)) {
     return suite.setup(() => testUtils.httpServer().start())
   }

@@ -16,9 +16,63 @@ Routes import controllers from `#generated/controllers` (mapped to `.adonisjs/se
 
 ## Tests
 
-- `bin/test.ts` sets `NODE_ENV=test`, so `.env.test` is loaded: DB is `the_uj_app_test` (user `julienc`).
-- Runner hooks do **not** migrate the DB — apply migrations to the test DB first: `NODE_ENV=test node ace migration:run`. Tests hit a real PostgreSQL instance, so it must be running.
+- `bin/test.ts` sets `NODE_ENV=test`, so `.env.test` is loaded: DB is `the_uj_app_test` (user `julienc`). Tests hit a real PostgreSQL instance, so it must be running.
+- Migrations run automatically via `runnerHooks.setup` in `tests/bootstrap.ts` — no manual migration step needed.
+- Hash is faked globally via `configureSuite` in `tests/bootstrap.ts` — passwords are instant. Never run real scrypt in tests.
 - Functional suite boots the HTTP server automatically (`tests/bootstrap.ts`).
+
+### Suites
+
+- **`unit`** (2s timeout, no HTTP server): tests services and other non-HTTP logic in isolation. Pure logic, DB-backed via global transactions.
+- **`functional`** (30s timeout, HTTP server auto-started): tests the full HTTP stack via API client with typed route names. One spec file per controller.
+
+### Directory structure
+
+- `tests/unit/` mirrors `app/` for non-HTTP code (e.g. `services/`). One spec per source file. Add subfolders (`policies/`, `validators/`) when those files grow complex enough to warrant unit tests.
+- `tests/functional/` mirrors `app/controllers/` — one spec per controller.
+- `tests/factories/` contains test factories (e.g. `UserTestFactory`).
+- `tests/helpers/` contains reusable test utilities (auth assertions).
+
+### Test factories
+
+- Test factories live in `tests/factories/` (not `database/factories.ts`). They are simple static classes — no Lucid factory dependency.
+- Naming: `UserTestFactory`, `PostTestFactory`, etc. — the `TestFactory` suffix distinguishes them from Lucid's `UserFactory`.
+- **Must call real service functions** (not `Model.create()` directly) so fixtures exercise production business logic.
+- Custom methods return richer shapes when needed (e.g. `UserTestFactory.createWithToken()` returns `{ user, token }`).
+- Override caveat: services normalize data (e.g. email trim+lowercase), so override input may differ from DB state. Always read from the model instance.
+- Never call `Model.create()` or `Service.method()` directly in tests — go through test factories.
+
+### Reusable auth tests
+
+- `tests/helpers/auth.ts` exports `assertRequiresAuth(client, routeName, options?)` and `assertRequiresAuthorization(client, routeName, token, options?)`.
+- Every protected route must have a 401 test calling `assertRequiresAuth`.
+- Every resource-scoped route must have a 403 test calling `assertRequiresAuthorization`.
+
+### DB state
+
+- Each test group uses `group.each.setup(() => testUtils.db().withGlobalTransaction())` for isolation. Nothing is committed; rollback is instant.
+- UUID primary keys mean sequence reset is a non-issue.
+
+### Database assertions
+
+- The `dbAssertions` plugin (from `@adonisjs/lucid/plugins/db`) is registered in `tests/bootstrap.ts`.
+- Use `{ db }` from the test context to assert DB state: `db.assertHas(table, data, count?)`, `db.assertMissing(table, data)`, `db.assertCount(table, count)`, `db.assertEmpty(table)`, `db.assertModelExists(model)`, `db.assertModelMissing(model)`.
+- Use these in functional tests to verify side effects after HTTP requests (e.g. user created, token revoked). In unit tests, use them to verify service-level DB mutations.
+
+### Skipped tests for TODOs
+
+- When a TODO exists in app code (e.g. missing rate limiting, serialization bug), create a `test('title', async () => {}).skip()` with a matching `// TODO:` comment referencing the source location.
+- When the TODO is fixed, remove `.skip()` and make the test pass.
+- This keeps the test suite green while documenting intended behavior.
+
+### Writing a new test checklist
+
+1. **Which suite?** Service/non-HTTP logic → `unit`. HTTP endpoint → `functional` (one spec per controller).
+2. **Need a user?** Use `UserTestFactory.create()` or `UserTestFactory.createWithToken()` from `#tests/factories/user_test_factory`.
+3. **Protected route?** Add `assertRequiresAuth` test in the controller's spec file.
+4. **DB cleanup?** Add `group.each.setup(() => testUtils.db().withGlobalTransaction())` to the group.
+5. **Assertions?** All API responses wrapped in `data` — use `response.assertBodyContains({ data: { ... } })`.
+6. **App-code TODO?** Write a `test('title', async () => {}).skip()` with a `// TODO:` comment referencing the source file and line.
 
 ## Repo conventions
 
@@ -47,4 +101,4 @@ Routes import controllers from `#generated/controllers` (mapped to `.adonisjs/se
 
 ## Notes
 
-Migrations have **not** been run against Postgres yet — run `node ace migration:run` (and `NODE_ENV=test node ace migration:run` for the test DB) before booting/testing. `database/schema.ts` is stale (`id` typed as `number`) until then, since `schemaGeneration` regenerates it on `migration:run`.
+Migrations have **not** been run against the dev Postgres DB yet — run `node ace migration:run` before booting. `database/schema.ts` is stale until then, since `schemaGeneration` regenerates it on `migration:run`. The test DB is auto-migrated by `tests/bootstrap.ts`.
