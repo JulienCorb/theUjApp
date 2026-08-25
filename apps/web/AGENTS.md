@@ -1,64 +1,69 @@
-<!-- intent-skills:start -->
-# TanStack Intent - before editing files, run the matching guidance command.
-tanstackIntent:
-  - id: "@tanstack/devtools#devtools-app-setup"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/devtools#devtools-app-setup"
-    for: "Install TanStack Devtools, pick framework adapter (React/Vue/Solid/Preact), register plugins via plugins prop, configure shell (position, hotkeys, theme, hideUntilHover, requireUrlFlag, eventBusConfig). TanStackDevtools component, defaultOpen, localStorage persistence."
-  - id: "@tanstack/devtools#devtools-marketplace"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/devtools#devtools-marketplace"
-    for: "Publish plugin to npm and submit to TanStack Devtools Marketplace. PluginMetadata registry format, plugin-registry.ts, pluginImport (importName, type), requires (packageName, minVersion), framework tagging, multi-framework submissions, featured plugins."
-  - id: "@tanstack/devtools#devtools-plugin-panel"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/devtools#devtools-plugin-panel"
-    for: "Build devtools panel components that display emitted event data. Listen via EventClient.on(), handle theme (light/dark), use @tanstack/devtools-ui components. Plugin registration (name, render, id, defaultOpen), lifecycle (mount, activate, destroy), max 3 active plugins. Two paths: Solid.js core with devtools-ui for multi-framework support, or framework-specific panels."
-  - id: "@tanstack/devtools#devtools-production"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/devtools#devtools-production"
-    for: "Handle devtools in production vs development. removeDevtoolsOnBuild, devDependency vs regular dependency, conditional imports, NoOp plugin variants for tree-shaking, non-Vite production exclusion patterns."
-  - id: "@tanstack/devtools-event-client#devtools-bidirectional"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/devtools-event-client#devtools-bidirectional"
-    for: "Two-way event patterns between devtools panel and application. App-to-devtools observation, devtools-to-app commands, time-travel debugging with snapshots and revert. structuredClone for snapshot safety, distinct event suffixes for observation vs commands, serializable payloads only."
-  - id: "@tanstack/devtools-event-client#devtools-event-client"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/devtools-event-client#devtools-event-client"
-    for: "Create typed EventClient for a library. Define event maps with typed payloads, pluginId auto-prepend namespacing, emit()/on()/onAll()/onAllPluginEvents() API. Connection lifecycle (5 retries, 300ms), event queuing, enabled/disabled state, SSR fallbacks, singleton pattern. Unique pluginId requirement to avoid event collisions."
-  - id: "@tanstack/devtools-event-client#devtools-instrumentation"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/devtools-event-client#devtools-instrumentation"
-    for: "Analyze library codebase for critical architecture and debugging points, add strategic event emissions. Identify middleware boundaries, state transitions, lifecycle hooks. Consolidate events (1 not 15), debounce high-frequency updates, DRY shared payload fields, guard emit() for production. Transparent server/client event bridging."
-  - id: "@tanstack/devtools-vite#devtools-vite-plugin"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/devtools-vite#devtools-vite-plugin"
-    for: "Configure @tanstack/devtools-vite for source inspection (data-tsd-source, inspectHotkey, ignore patterns), console piping (client-to-server, server-to-client, levels), enhanced logging, server event bus (port, host, HTTPS), production stripping (removeDevtoolsOnBuild), editor integration (launch-editor, custom editor.open). Must be FIRST plugin in Vite config. Vite ^6 || ^7 only."
-  - id: "@tanstack/router-core#router-core"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/router-core#router-core"
-    for: "Framework-agnostic core concepts for TanStack Router: route trees, createRouter, createRoute, createRootRoute, createRootRouteWithContext, addChildren, Register type declaration, route matching, route sorting, file naming conventions. Entry point for all router skills."
-  - id: "@tanstack/router-core#router-core/auth-and-guards"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/router-core#router-core/auth-and-guards"
-    for: "Route protection with beforeLoad, redirect()/throw redirect(), isRedirect helper, authenticated layout routes (_authenticated), non-redirect auth (inline login), RBAC with roles and permissions, auth provider integration (Auth0, Clerk, Supabase), router context for auth state."
-  - id: "@tanstack/router-core#router-core/code-splitting"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/router-core#router-core/code-splitting"
-    for: "Automatic code splitting (autoCodeSplitting), .lazy.tsx convention, createLazyFileRoute, createLazyRoute, lazyRouteComponent, getRouteApi for typed hooks in split files, codeSplitGroupings per-route override, splitBehavior programmatic config, critical vs non-critical properties."
-  - id: "@tanstack/router-core#router-core/data-loading"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/router-core#router-core/data-loading"
-    for: "Route loader option, loaderDeps for cache keys, staleTime/gcTime/ defaultPreloadStaleTime SWR caching, pendingComponent/pendingMs/ pendingMinMs, errorComponent/onError/onCatch, beforeLoad, router context and createRootRouteWithContext DI pattern, router.invalidate, Await component, deferred data loading with unawaited promises."
-  - id: "@tanstack/router-core#router-core/navigation"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/router-core#router-core/navigation"
-    for: "Link component, useNavigate, Navigate component, router.navigate, ToOptions/NavigateOptions/LinkOptions, from/to relative navigation, activeOptions/activeProps, preloading (intent/viewport/render), preloadDelay, navigation blocking (useBlocker, Block), createLink, linkOptions helper, scroll restoration, MatchRoute."
-  - id: "@tanstack/router-core#router-core/not-found-and-errors"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/router-core#router-core/not-found-and-errors"
-    for: "notFound() function, notFoundComponent, defaultNotFoundComponent, notFoundMode (fuzzy/root), errorComponent, CatchBoundary, CatchNotFound, isNotFound, NotFoundRoute (deprecated), route masking (mask option, createRouteMask, unmaskOnReload)."
-  - id: "@tanstack/router-core#router-core/path-params"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/router-core#router-core/path-params"
-    for: "Dynamic path segments ($paramName), splat routes ($ / _splat), optional params ({-$paramName}), prefix/suffix patterns ({$param}.ext), useParams, params.parse/stringify, pathParamsAllowedCharacters, i18n locale patterns."
-  - id: "@tanstack/router-core#router-core/search-params"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/router-core#router-core/search-params"
-    for: "validateSearch, search param validation with Zod/Valibot/ArkType adapters, fallback(), search middlewares (retainSearchParams, stripSearchParams), custom serialization (parseSearch, stringifySearch), search param inheritance, loaderDeps for cache keys, reading and writing search params."
-  - id: "@tanstack/router-core#router-core/ssr"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/router-core#router-core/ssr"
-    for: "Non-streaming and streaming SSR, RouterClient/RouterServer, renderRouterToString/renderRouterToStream, createRequestHandler, defaultRenderHandler/defaultStreamHandler, HeadContent/Scripts components, head route option (meta/links/styles/scripts), ScriptOnce, automatic loader dehydration/hydration, memory history on server, data serialization, document head management."
-  - id: "@tanstack/router-core#router-core/type-safety"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/router-core#router-core/type-safety"
-    for: "Full type inference philosophy (never cast, never annotate inferred values), Register module declaration, from narrowing on hooks and Link, strict:false for shared components, getRouteApi for code-split typed access, addChildren with object syntax for TS perf, LinkProps and ValidateLinkOptions type utilities, as const satisfies pattern."
-  - id: "@tanstack/router-plugin#router-plugin"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/router-plugin#router-plugin"
-    for: "TanStack Router bundler plugin for route generation and automatic code splitting. Supports Vite, Webpack, Rspack, and esbuild. Configures autoCodeSplitting, routesDirectory, target framework, and code split groupings."
-  - id: "@tanstack/virtual-file-routes#virtual-file-routes"
-    run: "pnpm dlx @tanstack/intent@latest load @tanstack/virtual-file-routes#virtual-file-routes"
-    for: "Programmatic route tree building as an alternative to filesystem conventions: rootRoute, index, route, layout, physical, defineVirtualSubtreeConfig. Use with TanStack Router plugin's virtualRouteConfig option."
-<!-- intent-skills:end -->
+# AGENTS.md — @theuj/web
+
+Vite SPA (React 19 + TypeScript, TanStack Router + Query, Tailwind v4 + shadcn/ui) in `apps/web/`. No SSR, no server functions — this is a pure client-side SPA. Part of the `@theuj/monorepo` pnpm workspace; see the root `AGENTS.md` for monorepo-wide conventions.
+
+## Layout
+
+```
+apps/web/
+├── src/
+│   ├── routes/          # file-based routes (TanStack Router)
+│   ├── routeTree.gen.ts # auto-generated (committed, never edit)
+│   ├── router.tsx       # router factory — single createRouter entry point
+│   ├── main.tsx         # mounts <RouterProvider>
+│   ├── lib/             # tuyau client, auth store, query client, utils
+│   └── styles.css       # Tailwind v4 import + shadcn theme tokens
+├── vite.config.ts
+└── tsconfig.json
+```
+
+## Commands
+
+Run from the repo root:
+
+- `pnpm --filter @theuj/web dev` — Vite dev server on port 3000
+- `pnpm --filter @theuj/web build` — production build
+- `pnpm --filter @theuj/web lint` — ESLint
+- `pnpm --filter @theuj/web typecheck` — `tsc --noEmit`
+- `pnpm --filter @theuj/web format` — Prettier write + ESLint fix
+
+Root `pnpm lint` / `pnpm typecheck` / `pnpm build` / `pnpm format` run recursively over all workspaces via `pnpm -r`.
+
+## Dependencies
+
+- **Package name:** `@theuj/web` (scoped, matches `@theuj/api`).
+- TanStack deps are **version-pinned** (never `"latest"`) to avoid drift.
+- `@theuj/api` is consumed as `workspace:*` — the API's Tuyau type registry is the frontend's type-safe API layer.
+- pnpm is the only package manager (`pnpm@10.34.5` pinned in root `package.json`). No npm/yarn.
+
+## Codegen
+
+- `src/routeTree.gen.ts` is **auto-generated** by the TanStack Router Vite plugin and **committed** (like `.adonisjs/` in the API). Never edit it manually — it regenerates on dev/build. Add/modify route files under `src/routes/` and the plugin updates the tree.
+- The file has `@ts-nocheck` + `eslint-disable` at the top — it's excluded from lint/type enforcement. `.vscode/settings.json` marks it read-only.
+- `tsr generate` can regenerate manually if needed (`generate-routes` script).
+
+## Path aliases
+
+Both `#/*` and `@/*` map to `./src/*` (defined in both `tsconfig.json` `paths` and `package.json` `imports`). Prefer `#/*` (the Node subpath import — works in all tooling without TS resolution).
+
+## API layer (Tuyau)
+
+- **Type-safe client:** `createTuyauReactQueryClient` from `@tuyau/react-query`, consuming the registry from `@theuj/api/registry`. Wired in `src/lib/tuyau.ts`.
+- **Auth:** bearer access token (AdonisJS `tokensGuard` on the backend). Token is **in-memory only** (never `localStorage`/`sessionStorage`) — mitigates XSS token theft. Injected per-request as `Authorization: Bearer <token>`.
+- **Do NOT copy the starter kit's cookie/session setup** (`credentials: 'include'`) — this backend uses `tokensGuard`, not cookies. The `@theuj/api` auth is stateless and token-based.
+- **Response wrapper:** all API responses are wrapped in `{ data: ... }` by the backend's `serialize()`. The Tuyau client types reflect this.
+- **Token expiry:** 7 days. Plan a 401 → redirect-to-login flow. No refresh token yet.
+- **Vite dev proxy:** `/api` → `http://localhost:3333` in `vite.config.ts` (avoids CORS in dev; CORS is `origin: true` in dev on the backend).
+
+## Router
+
+- **Factory pattern:** `src/router.tsx` exports `getRouter()` — the single `createRouter` entry point. `main.tsx` imports and mounts it. This is where router context (auth state, QueryClient) gets injected.
+- **Type registration:** `declare module '@tanstack/react-router'` with `Register.router` lives in `router.tsx`. All hooks (`useNavigate`, `useParams`, `Link`) are typed from this.
+- **Code splitting:** `autoCodeSplitting: true` in the Vite plugin. Use `.lazy.tsx` convention for large route components.
+- **Auth guards:** protected routes use a layout route (`_authenticated.tsx`) with `beforeLoad` → `throw redirect({ to: '/login' })` when no token. Router context carries auth state.
+- `defaultPreload: 'intent'`, `defaultPreloadStaleTime: 0`, `scrollRestoration: true`.
+
+## Devtools
+
+- TanStack Devtools (unified `TanStackDevtools` component) + Router Devtools panel are rendered in `src/routes/__root.tsx`.
+- **Production:** devtools must be stripped from production builds. Either guard with `import.meta.env.DEV` or configure `removeDevtoolsOnBuild` in the `devtools()` Vite plugin. Currently unguarded — TODO.

@@ -5,11 +5,16 @@
   "type": "module",
   "packageManager": "pnpm@10.34.5",
   "scripts": {
-    "dev": "pnpm --filter @theuj/api dev",
-    "build": "pnpm -r build",
-    "test": "pnpm --filter @theuj/api test",
-    "lint": "pnpm -r lint",
-    "format": "pnpm -r format",
-    "typecheck": "pnpm -r typecheck"
+    "dev:api": "pnpm --filter @theuj/api dev",
+    "dev:web": "pnpm --filter @theuj/web dev",
+    "build:api": "pnpm --filter @theuj/api build",
+    "build:web": "pnpm --filter @theuj/web build",
+    "test:api": "pnpm --filter @theuj/api test",
+    "lint:api": "pnpm --filter @theuj/api lint",
+    "lint:web": "pnpm --filter @theuj/web lint",
+    "format:api": "pnpm --filter @theuj/api format",
+    "format:web": "pnpm --filter @theuj/web format",
+    "typecheck:api": "pnpm --filter @theuj/api typecheck",
+    "typecheck:web": "pnpm --filter @theuj/web typecheck"
   }
 }

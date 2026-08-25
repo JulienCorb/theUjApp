@@ -1,0 +1,5 @@
+# AdonisJS build output
+build
+
+# Compiled frontend assets
+public/assets

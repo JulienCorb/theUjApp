@@ -5,5 +5,6 @@ packages:
 # Native packages below need install-time scripts to fetch/compile their binaries.
 onlyBuiltDependencies:
   - '@swc/core' # Rust-based TS compiler used by Adonis (@poppinss/ts-exec) — downloads platform native binding
-  - esbuild # bundler behind `node ace build` — installs the native Go binary for your OS/arch
+  - esbuild # bundler behind `node ace build` and Vite — installs the native Go binary for your OS/arch
   - fsevents # macOS file-watcher used by HMR/hot-hook — compiles/downloads a native module
+  - lightningcss # CSS parser/transformer used by Tailwind v4 (@tailwindcss/vite) — native Rust binding
