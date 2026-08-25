@@ -27,13 +27,14 @@ Run from the repo root:
 - `pnpm --filter @theuj/web typecheck` — `tsc --noEmit`
 - `pnpm --filter @theuj/web format` — Prettier write + ESLint fix
 
-Root `pnpm lint` / `pnpm typecheck` / `pnpm build` / `pnpm format` run recursively over all workspaces via `pnpm -r`.
+Root scripts are suffixed `:api` / `:web` (e.g. `pnpm lint:web`, `pnpm typecheck:web`) — no combined commands.
 
 ## Dependencies
 
 - **Package name:** `@theuj/web` (scoped, matches `@theuj/api`).
 - TanStack deps are **version-pinned** (never `"latest"`) to avoid drift.
 - `@theuj/api` is consumed as `workspace:*` — the API's Tuyau type registry is the frontend's type-safe API layer.
+- `@tuyau/core` uses pnpm `catalog:` (version defined once in root `pnpm-workspace.yaml`, shared with `@theuj/api` to prevent version drift).
 - pnpm is the only package manager (`pnpm@10.34.5` pinned in root `package.json`). No npm/yarn.
 
 ## Codegen
@@ -61,7 +62,8 @@ Both `#/*` and `@/*` map to `./src/*` (defined in both `tsconfig.json` `paths` a
 - **Type registration:** `declare module '@tanstack/react-router'` with `Register.router` lives in `router.tsx`. All hooks (`useNavigate`, `useParams`, `Link`) are typed from this.
 - **Code splitting:** `autoCodeSplitting: true` in the Vite plugin. Use `.lazy.tsx` convention for large route components.
 - **Auth guards:** protected routes use a layout route (`_authenticated.tsx`) with `beforeLoad` → `throw redirect({ to: '/login' })` when no token. Router context carries auth state.
-- `defaultPreload: 'intent'`, `defaultPreloadStaleTime: 0`, `scrollRestoration: true`.
+- `defaultPreload: 'intent'`, `defaultPreloadStaleTime: 0`, `scrollRestoration: true`, `defaultStructuralSharing: true`.
+- App is wrapped in `<StrictMode>` in `main.tsx`.
 
 ## Devtools
 

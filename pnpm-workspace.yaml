@@ -1,6 +1,11 @@
 packages:
   - apps/*
 
+# Shared dep versions — referenced via `catalog:` in workspace package.json files.
+# Keeps versions in sync across @theuj/api and @theuj/web.
+catalog:
+  '@tuyau/core': ^1.2.2
+
 # pnpm 10 blocks dependency lifecycle scripts by default (supply-chain safety).
 # Native packages below need install-time scripts to fetch/compile their binaries.
 onlyBuiltDependencies:

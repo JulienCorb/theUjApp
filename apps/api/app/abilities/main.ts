@@ -14,3 +14,5 @@
 
 // Define abilities using Bouncer.ability() as needed.
 // e.g. export const sendEmail = Bouncer.ability((user: User) => user.role === 'admin')
+
+export {}

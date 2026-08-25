@@ -64,7 +64,7 @@
     "@adonisjs/lucid": "^22.4.2",
     "@adonisjs/shield": "^9.0.0",
     "@japa/api-client": "^3.2.1",
-    "@tuyau/core": "^1.2.2",
+    "@tuyau/core": "catalog:",
     "@vinejs/vine": "^4.4.0",
     "luxon": "^3.7.2",
     "pg": "^8.23.0",
