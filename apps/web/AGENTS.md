@@ -85,3 +85,15 @@ Both `#/*` and `@/*` map to `./src/*` (defined in both `tsconfig.json` `paths` a
 
 - **No form library yet.** Auth forms use `useState` + server-side validation (422 errors via Tuyau's `.safe()`).
 - TODO: add a form library (React Hook Form or TanStack Form + Zod) when complex forms with client-side validation, dynamic fields, or multi-step flows arrive.
+
+## Data fetching
+
+- **Route components never call `api.*` or `client.*` directly.** All data fetching goes through hooks in `src/hooks/`.
+- **Hooks are organized by domain** — `auth.ts`, future `posts.ts`, etc. Each file exports:
+  - Custom hooks: `use*` for queries and mutations (e.g. `useProfile`, `useLogin`). No `Query`/`Mutation` suffix — the return value makes the distinction clear.
+  - Query options functions: `*QueryOptions` for use in route loaders (`context.queryClient.ensureQueryData(...)`).
+  - Plain helpers when needed (e.g. `isAuthenticated()`).
+- **No manual query key strings.** Tuyau auto-generates keys via `api.*.queryOptions()`. For cache invalidation, use Tuyau's helpers: `api.routeName.pathKey()` / `api.routeName.pathFilter()`.
+- **React Query owns the cache; the router does not.** Route loaders call `context.queryClient.ensureQueryData(*QueryOptions())` to prefetch before render; components read the same cache via the corresponding hook — no duplicate requests.
+- **Response wrapper:** mutation/query callbacks receive the full serialized body `{ data: ... }` (backend's `serialize()` contract) — e.g. login success gives `({ data }) => data.token`.
+- **Raw HTTP client:** `client.api.*` proxy calls (e.g. `client.api.profile.accessTokens.destroy({})`) are reserved for non-query/mutation usage (imperative calls outside React). Components should not use them directly.
