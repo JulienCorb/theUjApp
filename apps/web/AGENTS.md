@@ -7,12 +7,16 @@ Vite SPA (React 19 + TypeScript, TanStack Router + Query, Tailwind v4 + shadcn/u
 ```
 apps/web/
 ├── src/
+│   ├── components/
+│   │   └── ui/          # shadcn primitives (CLI-generated, no business logic)
+│   ├── hooks/           # data-fetching hooks (per-domain)
 │   ├── routes/          # file-based routes (TanStack Router)
 │   ├── routeTree.gen.ts # auto-generated (committed, never edit)
 │   ├── router.tsx       # router factory — single createRouter entry point
 │   ├── main.tsx         # mounts <RouterProvider>
 │   ├── lib/             # tuyau client, auth store, query client, utils
 │   └── styles.css       # Tailwind v4 import + shadcn theme tokens
+├── components.json      # shadcn CLI config
 ├── vite.config.ts
 └── tsconfig.json
 ```
@@ -68,4 +72,16 @@ Both `#/*` and `@/*` map to `./src/*` (defined in both `tsconfig.json` `paths` a
 ## Devtools
 
 - TanStack Devtools (unified `TanStackDevtools` component) + Router Devtools panel are rendered in `src/routes/__root.tsx`.
-- **Production:** devtools must be stripped from production builds. Either guard with `import.meta.env.DEV` or configure `removeDevtoolsOnBuild` in the `devtools()` Vite plugin. Currently unguarded — TODO.
+- **Production:** devtools are stripped from production builds via `import.meta.env.DEV` guard in `__root.tsx`.
+
+## Components (shadcn/ui)
+
+- **`src/components/ui/`** — shadcn-generated primitives only. No business logic, no imports from `#/lib/tuyau`, `#/lib/auth-store`, or any app code. Never import `radix-ui/*` or `@base-ui-components/*` outside this folder.
+- **`src/routes/`** — pages. Import UI primitives directly from `#/components/ui/`. Import hooks from `#/hooks/` and lib from `#/lib/`.
+- Business components in `src/components/` (outside `ui/`) should be added only when composition/reuse is needed — not preemptively.
+- shadcn CLI: `pnpm dlx shadcn@latest add <component>` from `apps/web/`. Config in `components.json`. Style: `new-york`, base color: `neutral`, icons: `lucide`.
+
+## Forms
+
+- **No form library yet.** Auth forms use `useState` + server-side validation (422 errors via Tuyau's `.safe()`).
+- TODO: add a form library (React Hook Form or TanStack Form + Zod) when complex forms with client-side validation, dynamic fields, or multi-step flows arrive.
