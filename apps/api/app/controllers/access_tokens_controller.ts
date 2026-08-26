@@ -19,17 +19,14 @@ export default class AccessTokensController {
     })
   }
 
-  async destroy({ auth }: HttpContext) {
+  async destroy({ auth, serialize }: HttpContext) {
     const user = auth.getUserOrFail()
     if (user.currentAccessToken) {
       await this.authService.logout(user, user.currentAccessToken)
     }
 
-    // TODO(security/consistency): wrap this response in serialize() like all other
-    // endpoints. Returning a raw object bypasses the `data` wrapper enforced by
-    // the ApiSerializer provider and breaks the API contract.
-    return {
+    return serialize({
       message: 'Logged out successfully',
-    }
+    })
   }
 }

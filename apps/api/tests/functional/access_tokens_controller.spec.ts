@@ -150,7 +150,6 @@ test.group('AccessTokensController destroy (logout)', (group) => {
     subsequentResponse.assertStatus(401)
   })
 
-  // TODO: uncomment after fixing serialize() in AccessTokensController.destroy (app/controllers/access_tokens_controller.ts:28)
   test('logout response is wrapped in data key', async ({ client, assert }) => {
     const { token } = await UserTestFactory.createWithToken({
       email: 'serialize@example.com',
@@ -161,7 +160,7 @@ test.group('AccessTokensController destroy (logout)', (group) => {
 
     response.assertStatus(200)
     assert.isDefined((response.body() as any).data)
-  }).skip()
+  })
 
   // TODO: uncomment after adding resource-scoped endpoints + policies (start/routes.ts:35)
   test('returns 403 when bouncer denies access to resource', async () => {}).skip()
