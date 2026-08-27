@@ -97,3 +97,13 @@ Both `#/*` and `@/*` map to `./src/*` (defined in both `tsconfig.json` `paths` a
 - **React Query owns the cache; the router does not.** Route loaders call `context.queryClient.ensureQueryData(*QueryOptions())` to prefetch before render; components read the same cache via the corresponding hook — no duplicate requests.
 - **Response wrapper:** mutation/query callbacks receive the full serialized body `{ data: ... }` (backend's `serialize()` contract) — e.g. login success gives `({ data }) => data.token`.
 - **Raw HTTP client:** `client.api.*` proxy calls (e.g. `client.api.profile.accessTokens.destroy({})`) are reserved for non-query/mutation usage (imperative calls outside React). Components should not use them directly.
+
+## Testing
+
+- **No test system yet.** Add Vitest + React Testing Library when needed.
+- TODO(test): setup test infrastructure
+  - Configure Vitest with jsdom / happy-dom
+  - Add React Testing Library + user-event
+  - Add test utilities (renderWithProviders wrapping QueryClientProvider + RouterProvider)
+  - Add e2e tests with Playwright for critical flows (auth, etc.)
+  - Configure CI to run tests on PR
