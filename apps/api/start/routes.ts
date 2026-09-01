@@ -10,6 +10,7 @@
 import { middleware } from '#start/kernel'
 import router from '@adonisjs/core/services/router'
 import { controllers } from '#generated/controllers'
+import { loginThrottle, signupThrottle } from '#start/limiter'
 
 router.get('/', () => {
   return { hello: 'world' }
@@ -19,13 +20,8 @@ router
   .group(() => {
     router
       .group(() => {
-        // TODO(security): add rate limiting via @adonisjs/throttler on signup/login.
-        // Without it, attackers can brute-force passwords and create mass accounts
-        // at will. Apply a stricter limit on signup (e.g. 5/min/IP) and a looser
-        // one on login (e.g. 30/min/IP) to block credential stuffing without
-        // locking out legitimate users.
-        router.post('signup', [controllers.NewAccount, 'store'])
-        router.post('login', [controllers.AccessTokens, 'store'])
+        router.post('signup', [controllers.NewAccount, 'store']).use(signupThrottle)
+        router.post('login', [controllers.AccessTokens, 'store']).use(loginThrottle)
       })
       .prefix('auth')
       .as('auth')

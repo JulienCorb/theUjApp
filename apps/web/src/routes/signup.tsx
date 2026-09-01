@@ -42,8 +42,11 @@ function Signup() {
   const error = signup.error
   const validationErrors =
     error !== null && error.isValidationError() ? error.response.errors : []
+  const isRateLimited = error !== null && error.status === 429
   const otherError =
-    error !== null && !error.isValidationError() ? error.message : null
+    error !== null && !error.isValidationError() && !isRateLimited
+      ? error.message
+      : null
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -71,6 +74,11 @@ function Signup() {
                   <FieldError>{otherError}</FieldError>
                 </Field>
               )}
+              {isRateLimited && (
+                <Field aria-invalid>
+                  <FieldError>Too many requests. Try again later.</FieldError>
+                </Field>
+              )}
               <Field data-invalid={hasFieldError(validationErrors, 'email')}>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
@@ -95,9 +103,13 @@ function Signup() {
                   autoComplete="new-password"
                   required
                 />
-                <FieldDescription>Between 8 and 32 characters.</FieldDescription>
+                <FieldDescription>
+                  Between 8 and 32 characters.
+                </FieldDescription>
                 {hasFieldError(validationErrors, 'password') && (
-                  <FieldError errors={errorsFor(validationErrors, 'password')} />
+                  <FieldError
+                    errors={errorsFor(validationErrors, 'password')}
+                  />
                 )}
               </Field>
               <Field
@@ -131,7 +143,10 @@ function Signup() {
                 </Button>
                 <FieldDescription className="text-center">
                   Already have an account?{' '}
-                  <Link to="/login" className="underline underline-offset-4 hover:text-primary">
+                  <Link
+                    to="/login"
+                    className="underline underline-offset-4 hover:text-primary"
+                  >
                     Login
                   </Link>
                 </FieldDescription>

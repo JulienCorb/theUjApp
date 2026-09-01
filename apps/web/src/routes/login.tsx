@@ -41,8 +41,11 @@ function Login() {
   const error = login.error
   const validationErrors =
     error !== null && error.isValidationError() ? error.response.errors : []
+  const isRateLimited = error !== null && error.status === 429
   const otherError =
-    error !== null && !error.isValidationError() ? error.message : null
+    error !== null && !error.isValidationError() && !isRateLimited
+      ? error.message
+      : null
 
   const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -60,7 +63,9 @@ function Login() {
       <Card className="w-full sm:max-w-md">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
-          <CardDescription>Enter your credentials below to login</CardDescription>
+          <CardDescription>
+            Enter your credentials below to login
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -68,6 +73,11 @@ function Login() {
               {otherError && (
                 <Field aria-invalid>
                   <FieldError>{otherError}</FieldError>
+                </Field>
+              )}
+              {isRateLimited && (
+                <Field aria-invalid>
+                  <FieldError>Too many requests. Try again later.</FieldError>
                 </Field>
               )}
               <Field data-invalid={hasFieldError(validationErrors, 'email')}>
@@ -95,7 +105,9 @@ function Login() {
                   required
                 />
                 {hasFieldError(validationErrors, 'password') && (
-                  <FieldError errors={errorsFor(validationErrors, 'password')} />
+                  <FieldError
+                    errors={errorsFor(validationErrors, 'password')}
+                  />
                 )}
               </Field>
               <Field>
@@ -104,7 +116,10 @@ function Login() {
                 </Button>
                 <FieldDescription className="text-center">
                   Don&apos;t have an account?{' '}
-                  <Link to="/signup" className="underline underline-offset-4 hover:text-primary">
+                  <Link
+                    to="/signup"
+                    className="underline underline-offset-4 hover:text-primary"
+                  >
                     Sign up
                   </Link>
                 </FieldDescription>

@@ -1,9 +1,13 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
+import limiter from '@adonisjs/limiter/services/main'
 import { UserTestFactory } from '#tests/factories/user_test_factory'
 
 test.group('NewAccountController store (signup)', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
+  group.each.setup(async () => {
+    await limiter.clear()
+  })
 
   test('signup creates user and returns a token', async ({ client, db }) => {
     const response = await client
@@ -170,6 +174,31 @@ test.group('NewAccountController store (signup)', (group) => {
     await db.assertCount('users', 1)
   })
 
-  // TODO: uncomment after adding @adonisjs/throttler (start/routes.ts:22)
-  test('signup is rate-limited', async () => {}).skip()
+  test('signup is rate-limited', async ({ client, assert }) => {
+    for (let i = 0; i < 5; i++) {
+      const response = await client
+        .visit('auth.new_account.store')
+        .json({
+          email: `ratelimit${i}@example.com`,
+          password: 'Password123!',
+          passwordConfirmation: 'Password123!',
+        })
+        .send()
+
+      response.assertStatus(200)
+    }
+
+    const response = await client
+      .visit('auth.new_account.store')
+      .json({
+        email: 'ratelimited@example.com',
+        password: 'Password123!',
+        passwordConfirmation: 'Password123!',
+      })
+      .send()
+
+    response.assertStatus(429)
+    assert.equal((response.body() as any).errors[0].message, 'Too many requests')
+    assert.isNumber((response.body() as any).errors[0].retryAfter)
+  })
 })

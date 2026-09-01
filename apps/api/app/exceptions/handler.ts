@@ -11,6 +11,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * error details are returned to clients, leaking implementation details.
    */
   protected debug = !app.inProduction
+  protected ignoreStatuses = [400, 422, 401, 429]
 
   /**
    * The method is used for handling errors and returning

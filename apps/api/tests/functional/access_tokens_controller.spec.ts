@@ -1,9 +1,13 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
+import limiter from '@adonisjs/limiter/services/main'
 import User from '#models/user'
 import { UserTestFactory } from '#tests/factories/user_test_factory'
 test.group('AccessTokensController store (login)', (group) => {
   group.each.setup(() => testUtils.db().wrapInGlobalTransaction())
+  group.each.setup(async () => {
+    await limiter.clear()
+  })
 
   test('login succeeds with correct credentials', async ({ client, db }) => {
     await UserTestFactory.createWithToken({ email: 'login@example.com', password: 'Password123!' })
@@ -120,8 +124,31 @@ test.group('AccessTokensController store (login)', (group) => {
   // TODO: uncomment after adding maxLength to loginValidator password (app/validators/user.ts:24)
   test('login rejects excessively long password (DoS prevention)', async () => {}).skip()
 
-  // TODO: uncomment after adding @adonisjs/throttler (start/routes.ts:22)
-  test('login is rate-limited', async () => {}).skip()
+  test('login is rate-limited', async ({ client, assert }) => {
+    for (let i = 0; i < 30; i++) {
+      const response = await client
+        .visit('auth.access_tokens.store')
+        .json({
+          email: 'ratelimit@example.com',
+          password: 'WrongPassword!',
+        })
+        .send()
+
+      response.assertStatus(400)
+    }
+
+    const response = await client
+      .visit('auth.access_tokens.store')
+      .json({
+        email: 'ratelimit@example.com',
+        password: 'WrongPassword!',
+      })
+      .send()
+
+    response.assertStatus(429)
+    assert.equal((response.body() as any).errors[0].message, 'Too many requests')
+    assert.isNumber((response.body() as any).errors[0].retryAfter)
+  })
 })
 
 test.group('AccessTokensController destroy (logout)', (group) => {
