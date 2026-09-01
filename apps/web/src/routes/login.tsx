@@ -44,7 +44,7 @@ function Login() {
   const otherError =
     error !== null && !error.isValidationError() ? error.message : null
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (login.isPending) return
     login.mutate(

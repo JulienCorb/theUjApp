@@ -49,7 +49,7 @@ function Dashboard() {
             </div>
           )}
           <Button
-            variant="outline"
+            variant="destructive"
             onClick={handleLogout}
             disabled={logout.isPending}
           >
