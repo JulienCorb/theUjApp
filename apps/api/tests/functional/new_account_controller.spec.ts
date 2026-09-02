@@ -2,6 +2,7 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import limiter from '@adonisjs/limiter/services/main'
 import { UserTestFactory } from '#tests/factories/user_test_factory'
+import { MAX_SIGNUP_PASSWORD_LENGTH, MIN_SIGNUP_PASSWORD_LENGTH } from '#validators/user'
 
 test.group('NewAccountController store (signup)', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -123,8 +124,8 @@ test.group('NewAccountController store (signup)', (group) => {
       .visit('auth.new_account.store')
       .json({
         email: 'shortpw@example.com',
-        password: 'Short1!',
-        passwordConfirmation: 'Short1!',
+        password: 'A'.repeat(MIN_SIGNUP_PASSWORD_LENGTH - 1),
+        passwordConfirmation: 'A'.repeat(MIN_SIGNUP_PASSWORD_LENGTH - 1),
       })
       .send()
 
@@ -136,8 +137,8 @@ test.group('NewAccountController store (signup)', (group) => {
       .visit('auth.new_account.store')
       .json({
         email: 'longpw@example.com',
-        password: 'A'.repeat(33),
-        passwordConfirmation: 'A'.repeat(33),
+        password: 'A'.repeat(MAX_SIGNUP_PASSWORD_LENGTH + 1),
+        passwordConfirmation: 'A'.repeat(MAX_SIGNUP_PASSWORD_LENGTH + 1),
       })
       .send()
 
