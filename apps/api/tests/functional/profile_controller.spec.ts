@@ -59,7 +59,4 @@ test.group('ProfileController show', (group) => {
   test('profile requires auth (401 without token)', async ({ client }) => {
     await assertRequiresAuth(client, 'profile.profile.show')
   })
-
-  // TODO: uncomment after ensuring staging runs NODE_ENV=production (app/exceptions/handler.ts:9)
-  test('does not leak stack traces in production mode', async () => {}).skip()
 })

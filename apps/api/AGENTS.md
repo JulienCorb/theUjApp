@@ -101,6 +101,11 @@ Paths below are relative to `apps/api/`.
 - Env is validated in `start/env.ts`; `APP_KEY` is required to boot (never commit `.env`).
 - **Migrations are manual** (dev and prod): run `node ace migration:run` / `migration:rollback` from `apps/api/` by hand — never wire them into app boot or scripts. The test env is the exception (see Tests).
 
+## Deployment
+
+- `NODE_ENV` must be `production` on **every deployed environment** (staging, preview, prod). `development` is local-only and must never be exposed publicly: when `app.inProduction` is false, the exception handler (`app/exceptions/handler.ts`) returns verbose error pages leaking stack traces, and cookies are not marked `secure` (`config/app.ts`). `config/cors.ts` and `config/database.ts` also key off the environment.
+- Distinguish the deployment stage with a separate variable, e.g. `APP_ENV=staging` — not via `NODE_ENV`.
+
 ## Notes
 
 Migrations have **not** been run against the dev Postgres DB (`the_uj_app_dev`) yet — run `node ace migration:run` from `apps/api/` before booting. `database/schema.ts` is stale until then, since `schemaGeneration` regenerates it on `migration:run`. The test DB is auto-migrated by `tests/bootstrap.ts`.
