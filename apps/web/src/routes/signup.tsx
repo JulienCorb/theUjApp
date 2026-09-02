@@ -104,7 +104,7 @@ function Signup() {
                   required
                 />
                 <FieldDescription>
-                  Between 8 and 32 characters.
+                  Between 12 and 32 characters.
                 </FieldDescription>
                 {hasFieldError(validationErrors, 'password') && (
                   <FieldError
