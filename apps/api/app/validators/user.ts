@@ -7,6 +7,16 @@ const email = () => vine.string().email().maxLength(254)
 const password = () => vine.string().minLength(8).maxLength(32)
 
 /**
+ * Max length accepted for a password attempt at login.
+ *
+ * Must be large enough to never reject a legitimate password (signup caps
+ * attempts at 32 chars) but small enough that hashing an attempt stays cheap.
+ * Without this bound, an attacker can send arbitrarily large password strings,
+ * forcing the server to hash megabytes of input on every request (DoS vector).
+ */
+export const MAX_LOGIN_PASSWORD_LENGTH = 1024
+
+/**
  * Validator to use when performing self-signup
  */
 export const signupValidator = vine.create({
@@ -21,8 +31,5 @@ export const signupValidator = vine.create({
  */
 export const loginValidator = vine.create({
   email: email(),
-  // TODO(security): add a maxLength bound (e.g. 1024) to the login password.
-  // Without it, an attacker can send arbitrarily large password strings,
-  // forcing the server to hash megabytes of input on every request (DoS vector).
-  password: vine.string(),
+  password: vine.string().maxLength(MAX_LOGIN_PASSWORD_LENGTH),
 })

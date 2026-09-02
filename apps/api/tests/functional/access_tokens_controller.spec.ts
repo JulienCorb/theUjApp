@@ -3,6 +3,7 @@ import testUtils from '@adonisjs/core/services/test_utils'
 import limiter from '@adonisjs/limiter/services/main'
 import User from '#models/user'
 import { UserTestFactory } from '#tests/factories/user_test_factory'
+import { MAX_LOGIN_PASSWORD_LENGTH } from '#validators/user'
 test.group('AccessTokensController store (login)', (group) => {
   group.each.setup(() => testUtils.db().wrapInGlobalTransaction())
   group.each.setup(async () => {
@@ -121,8 +122,17 @@ test.group('AccessTokensController store (login)', (group) => {
     response.assertStatus(422)
   })
 
-  // TODO: uncomment after adding maxLength to loginValidator password (app/validators/user.ts:24)
-  test('login rejects excessively long password (DoS prevention)', async () => {}).skip()
+  test('login rejects excessively long password (DoS prevention)', async ({ client }) => {
+    const response = await client
+      .visit('auth.access_tokens.store')
+      .json({
+        email: 'longpw@example.com',
+        password: 'x'.repeat(MAX_LOGIN_PASSWORD_LENGTH + 1),
+      })
+      .send()
+
+    response.assertStatus(422)
+  })
 
   test('login is rate-limited', async ({ client, assert }) => {
     for (let i = 0; i < 30; i++) {
