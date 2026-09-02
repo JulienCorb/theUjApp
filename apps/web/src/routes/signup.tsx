@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 
+import { m } from '#/paraglide/messages.js'
 import { useSignup } from '#/hooks/auth'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
@@ -63,8 +64,8 @@ function Signup() {
     <div className="flex min-h-svh items-center justify-center px-4">
       <Card className="w-full sm:max-w-md">
         <CardHeader>
-          <CardTitle>Create your account</CardTitle>
-          <CardDescription>Enter your details below to sign up</CardDescription>
+          <CardTitle>{m.signup_title()}</CardTitle>
+          <CardDescription>{m.signup_subtitle()}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -76,11 +77,11 @@ function Signup() {
               )}
               {isRateLimited && (
                 <Field aria-invalid>
-                  <FieldError>Too many requests. Try again later.</FieldError>
+                  <FieldError>{m.error_too_many_requests()}</FieldError>
                 </Field>
               )}
               <Field data-invalid={hasFieldError(validationErrors, 'email')}>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="email">{m.field_email()}</FieldLabel>
                 <Input
                   id="email"
                   type="email"
@@ -94,7 +95,7 @@ function Signup() {
                 )}
               </Field>
               <Field data-invalid={hasFieldError(validationErrors, 'password')}>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <FieldLabel htmlFor="password">{m.field_password()}</FieldLabel>
                 <Input
                   id="password"
                   type="password"
@@ -103,9 +104,7 @@ function Signup() {
                   autoComplete="new-password"
                   required
                 />
-                <FieldDescription>
-                  Between 12 and 32 characters.
-                </FieldDescription>
+                <FieldDescription>{m.field_password_hint()}</FieldDescription>
                 {hasFieldError(validationErrors, 'password') && (
                   <FieldError
                     errors={errorsFor(validationErrors, 'password')}
@@ -119,7 +118,7 @@ function Signup() {
                 )}
               >
                 <FieldLabel htmlFor="passwordConfirmation">
-                  Confirm password
+                  {m.field_password_confirmation()}
                 </FieldLabel>
                 <Input
                   id="passwordConfirmation"
@@ -139,15 +138,17 @@ function Signup() {
               </Field>
               <Field>
                 <Button type="submit" disabled={signup.isPending}>
-                  {signup.isPending ? 'Creating account…' : 'Sign up'}
+                  {signup.isPending
+                    ? m.signup_submit_pending()
+                    : m.signup_submit()}
                 </Button>
                 <FieldDescription className="text-center">
-                  Already have an account?{' '}
+                  {m.auth_login_prompt()}{' '}
                   <Link
                     to="/login"
                     className="underline underline-offset-4 hover:text-primary"
                   >
-                    Login
+                    {m.auth_login_link()}
                   </Link>
                 </FieldDescription>
               </Field>

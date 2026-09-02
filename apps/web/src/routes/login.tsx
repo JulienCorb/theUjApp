@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 
+import { m } from '#/paraglide/messages.js'
 import { useLogin } from '#/hooks/auth'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
@@ -62,10 +63,8 @@ function Login() {
     <div className="flex min-h-svh items-center justify-center px-4">
       <Card className="w-full sm:max-w-md">
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
-            Enter your credentials below to login
-          </CardDescription>
+          <CardTitle>{m.login_title()}</CardTitle>
+          <CardDescription>{m.login_subtitle()}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -77,11 +76,11 @@ function Login() {
               )}
               {isRateLimited && (
                 <Field aria-invalid>
-                  <FieldError>Too many requests. Try again later.</FieldError>
+                  <FieldError>{m.error_too_many_requests()}</FieldError>
                 </Field>
               )}
               <Field data-invalid={hasFieldError(validationErrors, 'email')}>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="email">{m.field_email()}</FieldLabel>
                 <Input
                   id="email"
                   type="email"
@@ -95,7 +94,7 @@ function Login() {
                 )}
               </Field>
               <Field data-invalid={hasFieldError(validationErrors, 'password')}>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <FieldLabel htmlFor="password">{m.field_password()}</FieldLabel>
                 <Input
                   id="password"
                   type="password"
@@ -112,15 +111,17 @@ function Login() {
               </Field>
               <Field>
                 <Button type="submit" disabled={login.isPending}>
-                  {login.isPending ? 'Logging in…' : 'Login'}
+                  {login.isPending
+                    ? m.login_submit_pending()
+                    : m.login_submit()}
                 </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account?{' '}
+                  {m.auth_signup_prompt()}{' '}
                   <Link
                     to="/signup"
                     className="underline underline-offset-4 hover:text-primary"
                   >
-                    Sign up
+                    {m.auth_signup_link()}
                   </Link>
                 </FieldDescription>
               </Field>

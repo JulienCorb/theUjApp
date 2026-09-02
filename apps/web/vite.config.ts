@@ -5,6 +5,7 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 
 import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { paraglideVitePlugin } from '@inlang/paraglide-js'
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
@@ -12,6 +13,13 @@ const config = defineConfig({
     devtools(),
     tailwindcss(),
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),
+    paraglideVitePlugin({
+      project: './project.inlang',
+      outdir: './src/paraglide',
+      emitTsDeclarations: true,
+      emitGitIgnore: false,
+      outputStructure: 'locale-modules',
+    }),
     viteReact(),
   ],
   server: {
