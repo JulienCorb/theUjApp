@@ -8,7 +8,18 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class AuthAccessTokenSchema extends BaseModel {
-  static $columns = ['abilities', 'createdAt', 'expiresAt', 'hash', 'id', 'lastUsedAt', 'name', 'tokenableId', 'type', 'updatedAt'] as const
+  static $columns = [
+    'abilities',
+    'createdAt',
+    'expiresAt',
+    'hash',
+    'id',
+    'lastUsedAt',
+    'name',
+    'tokenableId',
+    'type',
+    'updatedAt',
+  ] as const
   $columns = AuthAccessTokenSchema.$columns
   @column()
   declare abilities: string
@@ -30,6 +41,63 @@ export class AuthAccessTokenSchema extends BaseModel {
   declare type: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+}
+
+export class LoginChallengeSchema extends BaseModel {
+  static $columns = [
+    'attempts',
+    'codeHash',
+    'consumedAt',
+    'createdAt',
+    'expiresAt',
+    'id',
+    'updatedAt',
+    'userId',
+  ] as const
+  $columns = LoginChallengeSchema.$columns
+  @column()
+  declare attempts: number
+  @column()
+  declare codeHash: string
+  @column.dateTime()
+  declare consumedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: string
+}
+
+export class PasswordResetTokenSchema extends BaseModel {
+  static $columns = [
+    'consumedAt',
+    'createdAt',
+    'expiresAt',
+    'id',
+    'tokenHash',
+    'updatedAt',
+    'userId',
+  ] as const
+  $columns = PasswordResetTokenSchema.$columns
+  @column.dateTime()
+  declare consumedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare tokenHash: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: string
 }
 
 export class UserSchema extends BaseModel {

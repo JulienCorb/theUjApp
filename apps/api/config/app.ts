@@ -10,6 +10,11 @@ import { defineConfig } from '@adonisjs/core/http'
 export const appUrl = env.get('APP_URL')
 
 /**
+ * The brand name of the application, used for example in email templates.
+ */
+export const appName = env.get('APP_NAME', 'TheUjApp')
+
+/**
  * The configuration settings used by the HTTP server
  */
 export const http = defineConfig({

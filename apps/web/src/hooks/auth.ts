@@ -20,7 +20,9 @@ export function useLogin() {
     api.auth.accessTokens.store.mutationOptions({
       onSuccess: ({ data }) => {
         setToken(data.token)
-        queryClient.invalidateQueries({ queryKey: api.profile.profile.pathKey() })
+        queryClient.invalidateQueries({
+          queryKey: api.profile.profile.pathKey(),
+        })
       },
     }),
   )
@@ -31,7 +33,9 @@ export function useSignup() {
     api.auth.newAccount.store.mutationOptions({
       onSuccess: ({ data }) => {
         setToken(data.token)
-        queryClient.invalidateQueries({ queryKey: api.profile.profile.pathKey() })
+        queryClient.invalidateQueries({
+          queryKey: api.profile.profile.pathKey(),
+        })
       },
     }),
   )
@@ -45,4 +49,12 @@ export function useLogout() {
       queryClient.clear()
     },
   })
+}
+
+export function useForgotPassword() {
+  return useMutation(api.auth.passwordReset.forgot.mutationOptions())
+}
+
+export function useResetPassword() {
+  return useMutation(api.auth.passwordReset.reset.mutationOptions())
 }

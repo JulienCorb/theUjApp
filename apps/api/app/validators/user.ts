@@ -3,8 +3,8 @@ import vine from '@vinejs/vine'
 /**
  * Shared rules for email and password.
  */
-const email = () => vine.string().email().maxLength(254)
-const password = () =>
+export const email = () => vine.string().email().maxLength(254)
+export const password = () =>
   vine.string().minLength(MIN_SIGNUP_PASSWORD_LENGTH).maxLength(MAX_SIGNUP_PASSWORD_LENGTH)
 
 /**

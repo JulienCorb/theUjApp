@@ -1,8 +1,10 @@
 import { test } from '@japa/runner'
-import testUtils from '@adonisjs/core/services/test_utils'
 import hash from '@adonisjs/core/services/hash'
+import testUtils from '@adonisjs/core/services/test_utils'
+import db from '@adonisjs/lucid/services/db'
 import AuthService from '#services/auth_service'
 import User from '#models/user'
+import { UserTestFactory } from '#tests/factories/user_test_factory'
 
 test.group('AuthService', (group) => {
   group.each.setup(() => testUtils.db().wrapInGlobalTransaction())
@@ -42,7 +44,7 @@ test.group('AuthService', (group) => {
 
   test('login rejects wrong password', async ({ assert }) => {
     const authService = new AuthService()
-    await authService.register('wrongpw@example.com', 'Password123!')
+    await UserTestFactory.create({ email: 'wrongpw@example.com', password: 'Password123!' })
 
     assert.rejects(
       () => authService.login('wrongpw@example.com', 'WrongPassword!'),
@@ -52,7 +54,7 @@ test.group('AuthService', (group) => {
 
   test('login normalizes email before verifying credentials', async ({ assert }) => {
     const authService = new AuthService()
-    await authService.register('normalize@example.com', 'Password123!')
+    await UserTestFactory.create({ email: 'normalize@example.com', password: 'Password123!' })
 
     const { user } = await authService.login('  NORMALIZE@example.com  ', 'Password123!')
 
@@ -61,7 +63,7 @@ test.group('AuthService', (group) => {
 
   test('login returns a non-empty token string', async ({ assert }) => {
     const authService = new AuthService()
-    await authService.register('login-token@example.com', 'Password123!')
+    await UserTestFactory.create({ email: 'login-token@example.com', password: 'Password123!' })
 
     const { token } = await authService.login('login-token@example.com', 'Password123!')
 
@@ -71,7 +73,10 @@ test.group('AuthService', (group) => {
 
   test('logout deletes the token from DB', async ({ assert }) => {
     const authService = new AuthService()
-    const { user } = await authService.register('logout@example.com', 'Password123!')
+    const user = await UserTestFactory.create({
+      email: 'logout@example.com',
+      password: 'Password123!',
+    })
 
     const tokens = await User.accessTokens.all(user)
     assert.equal(tokens.length, 1)
@@ -84,8 +89,10 @@ test.group('AuthService', (group) => {
   })
 
   test('token expires after 7 days (expiresAt is set)', async ({ assert }) => {
-    const authService = new AuthService()
-    const { user } = await authService.register('expiry@example.com', 'Password123!')
+    const user = await UserTestFactory.create({
+      email: 'expiry@example.com',
+      password: 'Password123!',
+    })
 
     const tokens = await User.accessTokens.all(user)
     const dbToken = tokens[0]!
@@ -97,5 +104,55 @@ test.group('AuthService', (group) => {
     const diffMs = Math.abs(dbToken.expiresAt!.getTime() - sevenDaysLater.getTime())
 
     assert.isBelow(diffMs, 5 * 60 * 1000)
+  })
+
+  test('changePassword updates the password', async ({ assert }) => {
+    const authService = new AuthService()
+    const user = await UserTestFactory.create({
+      email: 'change-pw@example.com',
+      password: 'OldPassword123!',
+    })
+
+    await authService.changePassword(user, 'NewPassword123!')
+
+    const refreshed = await User.findOrFail(user.id)
+    assert.isTrue(await hash.verify(refreshed.password, 'NewPassword123!'))
+    assert.isFalse(await hash.verify(refreshed.password, 'OldPassword123!'))
+  })
+
+  test('changePassword participates in the transaction bound by the caller', async ({ assert }) => {
+    const authService = new AuthService()
+    const user = await UserTestFactory.create({
+      email: 'rollback-pw@example.com',
+      password: 'OldPassword123!',
+    })
+
+    await assert.rejects(async () => {
+      await db.transaction(async (client) => {
+        user.useTransaction(client)
+        await authService.changePassword(user, 'NewPassword123!')
+        throw new Error('boom')
+      })
+    })
+
+    const refreshed = await User.findOrFail(user.id)
+    assert.isTrue(await hash.verify(refreshed.password, 'OldPassword123!'))
+  })
+
+  test('revokeAllTokens deletes every access token of the user', async ({ assert }) => {
+    const authService = new AuthService()
+    const user = await UserTestFactory.create({
+      email: 'revoke-all@example.com',
+      password: 'Password123!',
+    })
+    await User.accessTokens.create(user)
+
+    const tokensBefore = await User.accessTokens.all(user)
+    assert.equal(tokensBefore.length, 2)
+
+    await authService.revokeAllTokens(user)
+
+    const tokensAfter = await User.accessTokens.all(user)
+    assert.equal(tokensAfter.length, 0)
   })
 })

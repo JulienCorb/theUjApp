@@ -124,6 +124,14 @@ function Login() {
                     {m.auth_signup_link()}
                   </Link>
                 </FieldDescription>
+                <FieldDescription className="text-center">
+                  <Link
+                    to="/forgot-password"
+                    className="underline underline-offset-4 hover:text-primary"
+                  >
+                    {m.auth_forgot_password_link()}
+                  </Link>
+                </FieldDescription>
               </Field>
             </FieldGroup>
           </form>

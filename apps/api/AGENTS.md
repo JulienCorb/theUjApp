@@ -39,9 +39,9 @@ Paths below are relative to `apps/api/`.
 - Test factories live in `tests/factories/` (not `database/factories.ts`). They are simple static classes — no Lucid factory dependency.
 - Naming: `UserTestFactory`, `PostTestFactory`, etc. — the `TestFactory` suffix distinguishes them from Lucid's `UserFactory`.
 - **Must call real service functions** (not `Model.create()` directly) so fixtures exercise production business logic.
+- Never call `Model.create()` or `Service.method()` directly in tests — go through test factories. The only exception: when the service method itself is the system under test (e.g. unit tests of `AuthService.register` call it directly, while other tests create users via `UserTestFactory`).
 - Custom methods return richer shapes when needed (e.g. `UserTestFactory.createWithToken()` returns `{ user, token }`).
 - Override caveat: services normalize data (e.g. email trim+lowercase), so override input may differ from DB state. Always read from the model instance.
-- Never call `Model.create()` or `Service.method()` directly in tests — go through test factories.
 
 ### Reusable auth tests
 
@@ -99,6 +99,7 @@ Paths below are relative to `apps/api/`.
   - Reference by class import (`bouncer.with(InvoicePolicy)`) or string name (`bouncer.with('InvoicePolicy')`) — the string form uses the codegen barrel in `.adonisjs/server/policies.ts`.
   - Self-scoped endpoints (where the resource is the authenticated user) still use a policy for consistency.
 - Env is validated in `start/env.ts`; `APP_KEY` is required to boot (never commit `.env`).
+- **Never access environment variables directly in controllers, services, or other application code** — always access them through config files (`config/*.ts`), e.g. `import { webAppUrl } from '#config/password_reset'`. Config files are the single source of truth for configuration.
 - **Migrations are manual** (dev and prod): run `node ace migration:run` / `migration:rollback` from `apps/api/` by hand — never wire them into app boot or scripts. The test env is the exception (see Tests).
 
 ## Deployment
@@ -108,4 +109,5 @@ Paths below are relative to `apps/api/`.
 
 ## Notes
 
-Migrations have **not** been run against the dev Postgres DB (`the_uj_app_dev`) yet — run `node ace migration:run` from `apps/api/` before booting. `database/schema.ts` is stale until then, since `schemaGeneration` regenerates it on `migration:run`. The test DB is auto-migrated by `tests/bootstrap.ts`.
+- Migrations have **not** been run against the dev Postgres DB (`the_uj_app_dev`) yet — run `node ace migration:run` from `apps/api/` before booting. `database/schema.ts` is stale until then, since `schemaGeneration` regenerates it on `migration:run`. The test DB is auto-migrated by `tests/bootstrap.ts`.
+- TODO(queue): add a queue system for sending emails (e.g. `adonis-bull-queue`) and enqueue notifications instead of sending synchronously in services — delivery failures are currently caught and logged (e.g. `PasswordResetService.requestReset`), which is acceptable for now but leaves no retry/backoff path.

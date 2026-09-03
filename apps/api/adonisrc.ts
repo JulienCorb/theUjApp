@@ -29,6 +29,7 @@ export default defineConfig({
     () => import('@adonisjs/core/commands'),
     () => import('@adonisjs/lucid/commands'),
     () => import('@adonisjs/bouncer/commands'),
+    () => import('@adonisjs/mail/commands'),
   ],
 
   /*
@@ -56,6 +57,7 @@ export default defineConfig({
     () => import('@adonisjs/limiter/limiter_provider'),
     () => import('#providers/api_provider'),
     () => import('@adonisjs/bouncer/bouncer_provider'),
+    () => import('@adonisjs/mail/mail_provider'),
   ],
 
   /*

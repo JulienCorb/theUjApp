@@ -2,6 +2,7 @@
 import { getLocale, experimentalStaticLocale } from "../runtime.js"
 
 /** @typedef {import('../runtime.js').LocalizedString} LocalizedString */
+/** @typedef {{}} Auth_Forgot_Password_LinkInputs */
 /** @typedef {{}} Auth_Login_LinkInputs */
 /** @typedef {{}} Auth_Login_PromptInputs */
 /** @typedef {{}} Auth_Signup_LinkInputs */
@@ -15,17 +16,40 @@ import { getLocale, experimentalStaticLocale } from "../runtime.js"
 /** @typedef {{}} Field_PasswordInputs */
 /** @typedef {{}} Field_Password_ConfirmationInputs */
 /** @typedef {{}} Field_Password_HintInputs */
+/** @typedef {{}} Forgot_Password_Back_To_LoginInputs */
+/** @typedef {{}} Forgot_Password_SubmitInputs */
+/** @typedef {{}} Forgot_Password_Submit_PendingInputs */
+/** @typedef {{}} Forgot_Password_SubtitleInputs */
+/** @typedef {{}} Forgot_Password_SuccessInputs */
+/** @typedef {{}} Forgot_Password_TitleInputs */
 /** @typedef {{}} Login_SubmitInputs */
 /** @typedef {{}} Login_Submit_PendingInputs */
 /** @typedef {{}} Login_SubtitleInputs */
 /** @typedef {{}} Login_TitleInputs */
 /** @typedef {{}} Logout_SubmitInputs */
 /** @typedef {{}} Logout_Submit_PendingInputs */
+/** @typedef {{}} Reset_Password_Back_To_LoginInputs */
+/** @typedef {{}} Reset_Password_Invalid_TokenInputs */
+/** @typedef {{}} Reset_Password_SubmitInputs */
+/** @typedef {{}} Reset_Password_Submit_PendingInputs */
+/** @typedef {{}} Reset_Password_SubtitleInputs */
+/** @typedef {{}} Reset_Password_SuccessInputs */
+/** @typedef {{}} Reset_Password_TitleInputs */
 /** @typedef {{}} Signup_SubmitInputs */
 /** @typedef {{}} Signup_Submit_PendingInputs */
 /** @typedef {{}} Signup_SubtitleInputs */
 /** @typedef {{}} Signup_TitleInputs */
 import * as __fr from "./fr.js"
+/**
+
+* @param {Auth_Forgot_Password_LinkInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const auth_forgot_password_link = /** @type {((inputs?: Auth_Forgot_Password_LinkInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Auth_Forgot_Password_LinkInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.auth_forgot_password_link(inputs)
+});
 /**
 
 * @param {Auth_Login_LinkInputs} inputs
@@ -158,6 +182,66 @@ export const field_password_hint = /** @type {((inputs?: Field_Password_HintInpu
 });
 /**
 
+* @param {Forgot_Password_Back_To_LoginInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const forgot_password_back_to_login = /** @type {((inputs?: Forgot_Password_Back_To_LoginInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Forgot_Password_Back_To_LoginInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.forgot_password_back_to_login(inputs)
+});
+/**
+
+* @param {Forgot_Password_SubmitInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const forgot_password_submit = /** @type {((inputs?: Forgot_Password_SubmitInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Forgot_Password_SubmitInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.forgot_password_submit(inputs)
+});
+/**
+
+* @param {Forgot_Password_Submit_PendingInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const forgot_password_submit_pending = /** @type {((inputs?: Forgot_Password_Submit_PendingInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Forgot_Password_Submit_PendingInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.forgot_password_submit_pending(inputs)
+});
+/**
+
+* @param {Forgot_Password_SubtitleInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const forgot_password_subtitle = /** @type {((inputs?: Forgot_Password_SubtitleInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Forgot_Password_SubtitleInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.forgot_password_subtitle(inputs)
+});
+/**
+
+* @param {Forgot_Password_SuccessInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const forgot_password_success = /** @type {((inputs?: Forgot_Password_SuccessInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Forgot_Password_SuccessInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.forgot_password_success(inputs)
+});
+/**
+
+* @param {Forgot_Password_TitleInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const forgot_password_title = /** @type {((inputs?: Forgot_Password_TitleInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Forgot_Password_TitleInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.forgot_password_title(inputs)
+});
+/**
+
 * @param {Login_SubmitInputs} inputs
 * @param {{ locale?: "fr" }} options
 * @returns {LocalizedString}
@@ -215,6 +299,76 @@ export const logout_submit = /** @type {((inputs?: Logout_SubmitInputs, options?
 export const logout_submit_pending = /** @type {((inputs?: Logout_Submit_PendingInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logout_Submit_PendingInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
 	experimentalStaticLocale ?? options.locale ?? getLocale()
 	return __fr.logout_submit_pending(inputs)
+});
+/**
+
+* @param {Reset_Password_Back_To_LoginInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const reset_password_back_to_login = /** @type {((inputs?: Reset_Password_Back_To_LoginInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Reset_Password_Back_To_LoginInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.reset_password_back_to_login(inputs)
+});
+/**
+
+* @param {Reset_Password_Invalid_TokenInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const reset_password_invalid_token = /** @type {((inputs?: Reset_Password_Invalid_TokenInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Reset_Password_Invalid_TokenInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.reset_password_invalid_token(inputs)
+});
+/**
+
+* @param {Reset_Password_SubmitInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const reset_password_submit = /** @type {((inputs?: Reset_Password_SubmitInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Reset_Password_SubmitInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.reset_password_submit(inputs)
+});
+/**
+
+* @param {Reset_Password_Submit_PendingInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const reset_password_submit_pending = /** @type {((inputs?: Reset_Password_Submit_PendingInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Reset_Password_Submit_PendingInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.reset_password_submit_pending(inputs)
+});
+/**
+
+* @param {Reset_Password_SubtitleInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const reset_password_subtitle = /** @type {((inputs?: Reset_Password_SubtitleInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Reset_Password_SubtitleInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.reset_password_subtitle(inputs)
+});
+/**
+
+* @param {Reset_Password_SuccessInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const reset_password_success = /** @type {((inputs?: Reset_Password_SuccessInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Reset_Password_SuccessInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.reset_password_success(inputs)
+});
+/**
+
+* @param {Reset_Password_TitleInputs} inputs
+* @param {{ locale?: "fr" }} options
+* @returns {LocalizedString}
+*/
+export const reset_password_title = /** @type {((inputs?: Reset_Password_TitleInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Reset_Password_TitleInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	experimentalStaticLocale ?? options.locale ?? getLocale()
+	return __fr.reset_password_title(inputs)
 });
 /**
 

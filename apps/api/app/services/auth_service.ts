@@ -1,9 +1,10 @@
 import { type AccessToken } from '@adonisjs/auth/access_tokens'
+
 import User from '#models/user'
 
 /**
  * Business logic around authentication: account creation, credential
- * verification and token revocation.
+ * verification, password changes and token revocation.
  *
  * Controllers must delegate to this service instead of implementing
  * auth logic themselves. The service stays free of HTTP concerns
@@ -39,5 +40,24 @@ export default class AuthService {
    */
   async logout(user: User, token: AccessToken) {
     await User.accessTokens.delete(user, token.identifier)
+  }
+
+  /**
+   * Updates the user's password.
+   *
+   * Transaction ownership stays with the caller: bind the instance with
+   * `user.useTransaction(client)` before delegating when the change must be
+   * atomic with other writes.
+   */
+  async changePassword(user: User, password: string) {
+    user.password = password
+    await user.save()
+  }
+
+  /**
+   * Revokes every access token of the user (e.g. after a password reset).
+   */
+  async revokeAllTokens(user: User) {
+    await User.accessTokens.deleteAll(user)
   }
 }

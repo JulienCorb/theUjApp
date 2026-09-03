@@ -19,8 +19,14 @@ export default await Env.create(new URL('../', import.meta.url), {
   LOG_LEVEL: Env.schema.string(),
 
   // App
+  APP_NAME: Env.schema.string(),
   APP_KEY: Env.schema.secret(),
   APP_URL: Env.schema.string({ format: 'url', tld: false }),
+  WEB_APP_URL: Env.schema.string({ format: 'url', tld: false }),
+
+  // Password reset
+  PASSWORD_RESET_SECRET: Env.schema.secret.optional(),
+  PASSWORD_RESET_TTL_MINUTES: Env.schema.number.optional(),
 
   // Database
   DB_HOST: Env.schema.string({ format: 'host' }),
@@ -28,4 +34,14 @@ export default await Env.create(new URL('../', import.meta.url), {
   DB_USER: Env.schema.string(),
   DB_PASSWORD: Env.schema.string.optional(),
   DB_DATABASE: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the mail package
+  |----------------------------------------------------------
+  */
+  MAIL_MAILER: Env.schema.enum(['resend'] as const),
+  MAIL_FROM_NAME: Env.schema.string(),
+  MAIL_FROM_ADDRESS: Env.schema.string(),
+  RESEND_API_KEY: Env.schema.string(),
 })
