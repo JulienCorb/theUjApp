@@ -11,3 +11,4 @@
 /// <reference path="../../config/logger.ts" />
 /// <reference path="../../config/mail.ts" />
 /// <reference path="../../config/password_reset.ts" />
+/// <reference path="../../config/refresh_token.ts" />

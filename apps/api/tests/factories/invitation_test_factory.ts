@@ -32,8 +32,8 @@ export class InvitationTestFactory {
     const email = overrides?.email ?? `accepted${Date.now()}${Math.random()}@test.com`
     const password = overrides?.password ?? 'Password123!'
     const { user, token } = await this.create({ email })
-    const { token: accessToken } = await invitationService.accept(token, password)
+    const { accessToken, refreshToken } = await invitationService.accept(token, password)
 
-    return { user, token, accessToken, password }
+    return { user, token, accessToken, refreshToken, password }
   }
 }

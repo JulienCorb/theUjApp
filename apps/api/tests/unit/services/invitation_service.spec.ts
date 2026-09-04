@@ -114,7 +114,7 @@ test.group('InvitationService', (group) => {
     )
   })
 
-  test('accept sets the password, consumes the invitation and issues an access token', async ({
+  test('accept sets the password, consumes the invitation and issues a token pair', async ({
     assert,
   }) => {
     mail.fake()
@@ -122,7 +122,10 @@ test.group('InvitationService', (group) => {
       email: 'accept@example.com',
     })
 
-    const { token } = await invitationService.accept(rawToken, 'NewPassword123!')
+    const { accessToken, refreshToken } = await invitationService.accept(
+      rawToken,
+      'NewPassword123!'
+    )
 
     const refreshed = await User.findOrFail(user.id)
     assert.isTrue(await hash.verify(refreshed.password!, 'NewPassword123!'))
@@ -130,10 +133,14 @@ test.group('InvitationService', (group) => {
     const invitation = await Invitation.query().where('user_id', user.id).firstOrFail()
     assert.isNotNull(invitation.consumedAt)
 
-    assert.isString(token)
-    assert.isNotEmpty(token)
+    assert.isString(accessToken)
+    assert.isNotEmpty(accessToken)
+    assert.isString(refreshToken)
+    assert.isNotEmpty(refreshToken)
     const tokens = await User.accessTokens.all(user)
     assert.equal(tokens.length, 1)
+    const refreshTokens = await User.refreshTokens.all(user)
+    assert.equal(refreshTokens.length, 1)
   })
 
   test('accept rejects a consumed token', async ({ assert }) => {

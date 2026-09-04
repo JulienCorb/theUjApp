@@ -5,6 +5,7 @@ type ParamValue = string | number | bigint | boolean
 export type ScannedRoutes = {
   ALL: {
     'auth.access_tokens.store': { paramsTuple?: []; params?: {} }
+    'auth.refresh_tokens.store': { paramsTuple?: []; params?: {} }
     'auth.password_reset.forgot': { paramsTuple?: []; params?: {} }
     'auth.password_reset.reset': { paramsTuple?: []; params?: {} }
     'auth.invitations.accept': { paramsTuple?: []; params?: {} }
@@ -23,6 +24,7 @@ export type ScannedRoutes = {
   }
   POST: {
     'auth.access_tokens.store': { paramsTuple?: []; params?: {} }
+    'auth.refresh_tokens.store': { paramsTuple?: []; params?: {} }
     'auth.password_reset.forgot': { paramsTuple?: []; params?: {} }
     'auth.password_reset.reset': { paramsTuple?: []; params?: {} }
     'auth.invitations.accept': { paramsTuple?: []; params?: {} }

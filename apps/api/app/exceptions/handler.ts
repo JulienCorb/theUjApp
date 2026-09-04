@@ -12,7 +12,13 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * leaking implementation details — never expose `development` publicly.
    */
   protected debug = !app.inProduction
-  protected ignoreStatuses = [400, 422, 401, 429]
+  /**
+   * Expected client errors that are handled but never reported to the
+   * logs: validation failures, bad credentials, expired tokens, bouncer
+   * denials and duplicate-resource conflicts — they are the client's
+   * fault, not actionable signals.
+   */
+  protected ignoreStatuses = [400, 401, 403, 409, 422, 429]
 
   /**
    * The method is used for handling errors and returning

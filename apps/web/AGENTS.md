@@ -54,18 +54,18 @@ Both `#/*` and `@/*` map to `./src/*` (defined in both `tsconfig.json` `paths` a
 ## API layer (Tuyau)
 
 - **Type-safe client:** `createTuyauReactQueryClient` from `@tuyau/react-query`, consuming the registry from `@theuj/api/registry`. Wired in `src/lib/tuyau.ts`.
-- **Auth:** bearer access token (AdonisJS `tokensGuard` on the backend). Token is **in-memory only** (never `localStorage`/`sessionStorage`) — mitigates XSS token theft. Injected per-request as `Authorization: Bearer <token>`.
-- **Do NOT copy the starter kit's cookie/session setup** (`credentials: 'include'`) — this backend uses `tokensGuard`, not cookies. The `@theuj/api` auth is stateless and token-based.
+- **Auth:** two-token bearer system on the backend (AdonisJS `tokensGuard`). The **access token is in-memory only** (never `localStorage`/`sessionStorage`) — mitigates XSS token theft; injected per-request as `Authorization: Bearer <token>` in the `beforeRequest` hook. The **refresh token lives in an httpOnly cookie** set by the API (`refresh_token`, SameSite=Lax) — JavaScript never reads it.
+- **Auto-refresh:** lazy and single-flight. The ky client retries once on 401 (`retry: { statusCodes: [401] }`) and `hooks.beforeRetry` calls `refreshAccessToken()` (shared in-flight promise in `src/lib/tuyau.ts`). Login/refresh URLs are excluded. `ensureAccessToken()` rehydrates the token after a hard reload (cached token, else one refresh) — used by route guards.
 - **Response wrapper:** all API responses are wrapped in `{ data: ... }` by the backend's `serialize()`. The Tuyau client types reflect this.
-- **Token expiry:** 7 days. Plan a 401 → redirect-to-login flow. No refresh token yet.
-- **Vite dev proxy:** `/api` → `http://localhost:3333` in `vite.config.ts` (avoids CORS in dev; CORS is `origin: true` in dev on the backend).
+- **Token expiry:** access 15 minutes, refresh 30 days (rotated on each use). Failed refresh → user redirected to `/login` by the guards.
+- **Vite dev proxy:** `VITE_API_URL` is **empty in dev** — the client uses relative `/api/v1/...` URLs (`baseUrl: import.meta.env.DEV ? '' : VITE_API_URL`) through the proxy (`/api` → `http://localhost:3333` in `vite.config.ts`). Same-origin in dev = first-party cookies, no CORS. In prod, `VITE_API_URL` must be set to the absolute API URL (e.g. `https://api.theuj.app`) — cookies still work because the frontend subdomains and the API share a registrable domain (same-site).
 
 ## Router
 
 - **Factory pattern:** `src/router.tsx` exports `getRouter()` — the single `createRouter` entry point. `main.tsx` imports and mounts it. This is where router context (auth state, QueryClient) gets injected.
 - **Type registration:** `declare module '@tanstack/react-router'` with `Register.router` lives in `router.tsx`. All hooks (`useNavigate`, `useParams`, `Link`) are typed from this.
 - **Code splitting:** `autoCodeSplitting: true` in the Vite plugin. Use `.lazy.tsx` convention for large route components.
-- **Auth guards:** protected routes use a layout route (`_authenticated.tsx`) with `beforeLoad` → `throw redirect({ to: '/login' })` when no token. Router context carries auth state.
+- **Auth guards:** protected routes use a layout route (`_authenticated.tsx`) with an async `beforeLoad` → `ensureAccessToken()` → `throw redirect({ to: '/login' })` when no token can be obtained. The `/login` route has the inverse guard (redirect to `/dashboard` when already authenticated) and pre-warms the token.
 - `defaultPreload: 'intent'`, `defaultPreloadStaleTime: 0`, `scrollRestoration: true`, `defaultStructuralSharing: true`.
 - App is wrapped in `<StrictMode>` in `main.tsx`.
 
@@ -104,7 +104,7 @@ Both `#/*` and `@/*` map to `./src/*` (defined in both `tsconfig.json` `paths` a
   - Plain helpers when needed (e.g. `isAuthenticated()`).
 - **No manual query key strings.** Tuyau auto-generates keys via `api.*.queryOptions()`. For cache invalidation, use Tuyau's helpers: `api.routeName.pathKey()` / `api.routeName.pathFilter()`.
 - **React Query owns the cache; the router does not.** Route loaders call `context.queryClient.ensureQueryData(*QueryOptions())` to prefetch before render; components read the same cache via the corresponding hook — no duplicate requests.
-- **Response wrapper:** mutation/query callbacks receive the full serialized body `{ data: ... }` (backend's `serialize()` contract) — e.g. login success gives `({ data }) => data.token`.
+- **Response wrapper:** mutation/query callbacks receive the full serialized body `{ data: ... }` (backend's `serialize()` contract) — e.g. login success gives `({ data }) => data.accessToken`.
 - **Raw HTTP client:** `client.api.*` proxy calls (e.g. `client.api.profile.accessTokens.destroy({})`) are reserved for non-query/mutation usage (imperative calls outside React). Components should not use them directly.
 
 ## Testing

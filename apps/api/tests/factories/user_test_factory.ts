@@ -20,10 +20,10 @@ export class UserTestFactory {
     return user
   }
 
-  static async createWithToken(overrides?: UserTestFactoryOverrides) {
+  static async createWithTokens(overrides?: UserTestFactoryOverrides) {
     const password = overrides?.password ?? 'Password123!'
     const user = await this.create(overrides)
-    const { token } = await authService.login(user.email, password)
-    return { user, token }
+    const { accessToken, refreshToken } = await authService.login(user.email, password)
+    return { user, accessToken, refreshToken }
   }
 }

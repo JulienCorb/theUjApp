@@ -137,16 +137,20 @@ test.group('PasswordResetService', (group) => {
     )
   })
 
-  test('reset revokes all access tokens of the user', async ({ assert }) => {
-    const { user } = await UserTestFactory.createWithToken({ email: 'revoke@example.com' })
+  test('reset revokes every access and refresh token of the user', async ({ assert }) => {
+    const { user } = await UserTestFactory.createWithTokens({ email: 'revoke@example.com' })
     const rawToken = await PasswordResetTestFactory.requestReset('revoke@example.com')
 
     const tokensBefore = await User.accessTokens.all(user)
+    const refreshTokensBefore = await User.refreshTokens.all(user)
     assert.equal(tokensBefore.length, 1)
+    assert.equal(refreshTokensBefore.length, 1)
 
     await passwordResetService.reset(rawToken, 'NewPassword123!')
 
     const tokensAfter = await User.accessTokens.all(user)
+    const refreshTokensAfter = await User.refreshTokens.all(user)
     assert.equal(tokensAfter.length, 0)
+    assert.equal(refreshTokensAfter.length, 0)
   })
 })

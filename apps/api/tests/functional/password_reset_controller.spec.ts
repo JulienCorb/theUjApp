@@ -214,9 +214,14 @@ test.group('PasswordResetController reset (consume token)', (group) => {
     current.assertStatus(200)
   })
 
-  test('revokes all access tokens after a successful reset', async ({ client, db }) => {
+  test('revokes every access and refresh token after a successful reset', async ({
+    client,
+    db,
+  }) => {
     const { mails } = mail.fake()
-    const { user, token } = await UserTestFactory.createWithToken({ email: 'revoke@example.com' })
+    const { user, accessToken } = await UserTestFactory.createWithTokens({
+      email: 'revoke@example.com',
+    })
 
     await client.visit('auth.password_reset.forgot').json({ email: 'revoke@example.com' }).send()
     const rawToken = (mails.sent()[0] as PasswordResetNotification).getResetToken()
@@ -233,7 +238,10 @@ test.group('PasswordResetController reset (consume token)', (group) => {
 
     await db.assertMissing('auth_access_tokens', { tokenable_id: user.id })
 
-    const profileResponse = await client.visit('profile.profile.show').bearerToken(token).send()
+    const profileResponse = await client
+      .visit('profile.profile.show')
+      .bearerToken(accessToken)
+      .send()
     profileResponse.assertStatus(401)
   })
 

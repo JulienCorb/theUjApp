@@ -1,9 +1,10 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
-import { getToken } from '#/lib/auth-store'
+import { ensureAccessToken } from '#/lib/tuyau'
 
 export const Route = createFileRoute('/_authenticated')({
-  beforeLoad: () => {
-    if (!getToken()) {
+  beforeLoad: async () => {
+    const token = await ensureAccessToken()
+    if (!token) {
       throw redirect({ to: '/login' })
     }
   },

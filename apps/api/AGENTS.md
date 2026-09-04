@@ -41,7 +41,7 @@ Paths below are relative to `apps/api/`.
 - Naming: `UserTestFactory`, `InvitationTestFactory`, `PasswordResetTestFactory`, `PostTestFactory`, etc. — the `TestFactory` suffix distinguishes them from Lucid's `UserFactory`.
 - **Must call real service functions** (not `Model.create()` directly) so fixtures exercise production business logic.
 - Never call `Model.create()` or `Service.method()` directly in tests — go through test factories. The only exception: when the service method itself is the system under test (e.g. unit tests of `InvitationService.accept` call it directly). Service methods used to **set up state for a different SUT** go through factories too — e.g. obtain invitation tokens via `InvitationTestFactory.create()` and reset tokens via `PasswordResetTestFactory.requestReset()` instead of calling `invite()`/`requestReset()` directly.
-- Custom methods return richer shapes when needed (e.g. `UserTestFactory.createWithToken()` returns `{ user, token }`).
+- Custom methods return richer shapes when needed (e.g. `UserTestFactory.createWithTokens()` returns `{ user, accessToken, refreshToken }`).
 - Override caveat: services normalize data (e.g. email trim+lowercase), so override input may differ from DB state. Always read from the model instance.
 
 ### Reusable auth tests
@@ -70,7 +70,7 @@ Paths below are relative to `apps/api/`.
 ### Writing a new test checklist
 
 1. **Which suite?** Service/non-HTTP logic → `unit`. HTTP endpoint → `functional` (one spec per controller).
-2. **Need a user?** Use `UserTestFactory.create()` or `UserTestFactory.createWithToken()` from `#tests/factories/user_test_factory`.
+2. **Need a user?** Use `UserTestFactory.create()` or `UserTestFactory.createWithTokens()` from `#tests/factories/user_test_factory`.
 3. **Protected route?** Add `assertRequiresAuth` test in the controller's spec file.
 4. **DB cleanup?** Add `group.each.setup(() => testUtils.db().withGlobalTransaction())` to the group.
 5. **Assertions?** All API responses wrapped in `data` — use `response.assertBodyContains({ data: { ... } })`.
@@ -81,7 +81,7 @@ Paths below are relative to `apps/api/`.
 - **All API responses are wrapped in a `data` key**: use `serialize()` from `HttpContext` (e.g. `return serialize(data)`); `serialize.withoutWrapping` opts out. Implemented in `providers/api_provider.ts` — do not return raw objects from controllers.
 - **All tables use UUID primary keys**: `table.uuid('id').primary().defaultTo(this.db.knexRawQuery('gen_random_uuid()'))` — never `increments()`. Foreign-key columns (e.g. `tokenable_id`) are `uuid` matching the referenced table's primary key. `gen_random_uuid()` is built into Postgres 13+; no extension needed.
 - `database/schema.ts` is auto-generated (header says "DO NOT EDIT") by `node ace migration:run` — `schemaGeneration` is enabled on the pg connection in `config/database.ts`. Don't edit it manually; after changing migrations, run migrations so it regenerates.
-- Auth is bearer access tokens (`@adonisjs/auth` `tokensGuard`, `accessTokens` relation on `User`). Authorization via `@adonisjs/bouncer` — policies in `app/policies/`, abilities in `app/abilities/`, `InitializeBouncerMiddleware` runs on all routed requests and exposes `ctx.bouncer`. New endpoints under `/api/v1` should follow the existing group/prefix style in `start/routes.ts`.
+- Auth is a **two-token bearer system** (`@adonisjs/auth` `tokensGuard`): short-lived access tokens (15 min, `auth_access_tokens` type `auth_token`) sent as `Authorization: Bearer` on every call, plus long-lived rotating refresh tokens (30 days, type `refresh_token`) used by the refresh endpoint only. The web app keeps the access token in memory and the refresh token in an httpOnly cookie (`refresh_token`) — see `config/refresh_token.ts` for TTLs/prefixes/cookie options and `app/controllers/shared/refresh_token.ts` for the cookie helpers. Refresh rotation (soft-revoke guarded so a token can never mint two valid successors) + reuse detection live in `AuthService.rotateRefreshToken`. Authorization via `@adonisjs/bouncer` — policies in `app/policies/`, abilities in `app/abilities/`, `InitializeBouncerMiddleware` runs on all routed requests and exposes `ctx.bouncer`. New endpoints under `/api/v1` should follow the existing group/prefix style in `start/routes.ts`.
 - **Controllers (`app/controllers/`) have four responsibilities** — keep them thin and limited to:
   1. **Validation** — validate input via VineJS (`request.validateUsing(...)`).
   2. **Authorization** — check permissions via `ctx.bouncer.with(Policy).authorize('action', resource)` or `ctx.bouncer.authorize(ability, ...)`. Never skip this for resource-scoped endpoints; authenticated ≠ authorized.

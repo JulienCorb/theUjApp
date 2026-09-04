@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router'
 
 import { m } from '#/paraglide/messages.js'
 import { useLogin } from '#/hooks/auth'
+import { ensureAccessToken } from '#/lib/tuyau'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import {
@@ -30,7 +31,14 @@ function hasFieldError(errors: FieldErrors, field: string) {
   return errors.some((error) => error?.field === field)
 }
 
-export const Route = createFileRoute('/login')({ component: Login })
+export const Route = createFileRoute('/login')({
+  beforeLoad: async () => {
+    if (await ensureAccessToken()) {
+      throw redirect({ to: '/dashboard' })
+    }
+  },
+  component: Login,
+})
 
 function Login() {
   const navigate = useNavigate()

@@ -8,6 +8,10 @@ export const loginThrottle = limiter.define('login', () => {
   return limiter.allowRequests(30).every('1 minute')
 })
 
+export const refreshThrottle = limiter.define('refresh', (ctx) => {
+  return limiter.allowRequests(30).every('1 minute').usingKey(`refresh_${ctx.request.ip()}`)
+})
+
 export const passwordResetRequestThrottle = limiter.define('password-reset-request', (ctx) => {
   return limiter
     .allowRequests(5)

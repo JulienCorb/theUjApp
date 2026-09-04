@@ -16,6 +16,7 @@ import {
   loginThrottle,
   passwordResetRequestThrottle,
   passwordResetThrottle,
+  refreshThrottle,
 } from '#start/limiter'
 
 router.get('/', () => {
@@ -27,6 +28,7 @@ router
     router
       .group(() => {
         router.post('login', [controllers.AccessTokens, 'store']).use(loginThrottle)
+        router.post('refresh', [controllers.RefreshTokens, 'store']).use(refreshThrottle)
         router
           .post('forgot-password', [controllers.PasswordReset, 'forgot'])
           .use(passwordResetRequestThrottle)

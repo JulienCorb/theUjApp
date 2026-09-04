@@ -8,4 +8,8 @@ export const controllers = {
   Invitations: () => import('#controllers/invitations_controller'),
   PasswordReset: () => import('#controllers/password_reset_controller'),
   Profile: () => import('#controllers/profile_controller'),
+  RefreshTokens: () => import('#controllers/refresh_tokens_controller'),
+  shared: {
+    RefreshToken: () => import('#controllers/shared/refresh_token'),
+  },
 }

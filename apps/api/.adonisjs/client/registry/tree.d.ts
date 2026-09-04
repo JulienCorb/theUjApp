@@ -6,6 +6,9 @@ export interface ApiDefinition {
     accessTokens: {
       store: typeof routes['auth.access_tokens.store']
     }
+    refreshTokens: {
+      store: typeof routes['auth.refresh_tokens.store']
+    }
     passwordReset: {
       forgot: typeof routes['auth.password_reset.forgot']
       reset: typeof routes['auth.password_reset.reset']

@@ -25,11 +25,11 @@ test.group('InvitationsController store (create invitation)', (group) => {
   })
 
   test('returns 403 when a client user tries to create an invitation', async ({ client }) => {
-    const { token } = await UserTestFactory.createWithToken({ email: 'client@example.com' })
+    const { accessToken } = await UserTestFactory.createWithTokens({ email: 'client@example.com' })
 
     const response = await client
       .visit('invitations.invitations.store')
-      .bearerToken(token)
+      .bearerToken(accessToken)
       .json({ email: 'victim@example.com' })
       .send()
 
@@ -42,14 +42,14 @@ test.group('InvitationsController store (create invitation)', (group) => {
     assert,
   }) => {
     const { mails } = mail.fake()
-    const { token } = await UserTestFactory.createWithToken({
+    const { accessToken } = await UserTestFactory.createWithTokens({
       email: 'admin@example.com',
       role: 'internal',
     })
 
     const response = await client
       .visit('invitations.invitations.store')
-      .bearerToken(token)
+      .bearerToken(accessToken)
       .json({ email: 'invitee@example.com' })
       .send()
 
@@ -68,21 +68,21 @@ test.group('InvitationsController store (create invitation)', (group) => {
 
   test('re-inviting an invited email rotates the invitation link', async ({ client, assert }) => {
     const { mails } = mail.fake()
-    const { token } = await UserTestFactory.createWithToken({
+    const { accessToken } = await UserTestFactory.createWithTokens({
       email: 'admin-rotate@example.com',
       role: 'internal',
     })
 
     await client
       .visit('invitations.invitations.store')
-      .bearerToken(token)
+      .bearerToken(accessToken)
       .json({ email: 'rotate@example.com' })
       .send()
     const first = (mails.sent()[0] as InvitationNotification).getInvitationToken()
 
     await client
       .visit('invitations.invitations.store')
-      .bearerToken(token)
+      .bearerToken(accessToken)
       .json({ email: 'rotate@example.com' })
       .send()
     const second = (mails.sent()[1] as InvitationNotification).getInvitationToken()
@@ -100,7 +100,7 @@ test.group('InvitationsController store (create invitation)', (group) => {
   })
 
   test('returns 409 when the email already has an active account', async ({ client }) => {
-    const { token } = await UserTestFactory.createWithToken({
+    const { accessToken } = await UserTestFactory.createWithTokens({
       email: 'admin-conflict@example.com',
       role: 'internal',
     })
@@ -108,7 +108,7 @@ test.group('InvitationsController store (create invitation)', (group) => {
 
     const response = await client
       .visit('invitations.invitations.store')
-      .bearerToken(token)
+      .bearerToken(accessToken)
       .json({ email: 'active@example.com' })
       .send()
 
@@ -116,14 +116,14 @@ test.group('InvitationsController store (create invitation)', (group) => {
   })
 
   test('validation: invalid email returns 422', async ({ client }) => {
-    const { token } = await UserTestFactory.createWithToken({
+    const { accessToken } = await UserTestFactory.createWithTokens({
       email: 'admin-validation@example.com',
       role: 'internal',
     })
 
     const response = await client
       .visit('invitations.invitations.store')
-      .bearerToken(token)
+      .bearerToken(accessToken)
       .json({ email: 'not-an-email' })
       .send()
 
@@ -131,7 +131,7 @@ test.group('InvitationsController store (create invitation)', (group) => {
   })
 
   test('creating invitations is rate-limited', async ({ client, assert }) => {
-    const { token } = await UserTestFactory.createWithToken({
+    const { accessToken } = await UserTestFactory.createWithTokens({
       email: 'admin-ratelimit@example.com',
       role: 'internal',
     })
@@ -139,7 +139,7 @@ test.group('InvitationsController store (create invitation)', (group) => {
     for (let i = 0; i < 20; i++) {
       const response = await client
         .visit('invitations.invitations.store')
-        .bearerToken(token)
+        .bearerToken(accessToken)
         .json({ email: `ratelimit-${i}@example.com` })
         .send()
 
@@ -148,7 +148,7 @@ test.group('InvitationsController store (create invitation)', (group) => {
 
     const response = await client
       .visit('invitations.invitations.store')
-      .bearerToken(token)
+      .bearerToken(accessToken)
       .json({ email: 'ratelimit-over@example.com' })
       .send()
 
@@ -192,14 +192,20 @@ test.group('InvitationsController accept', (group) => {
         },
       },
     })
-    assert.isString((response.body() as any).data.token)
+    assert.isString((response.body() as any).data.accessToken)
+    assert.isNotEmpty((response.body() as any).data.accessToken)
+
+    const refreshCookie = response.cookie('refresh_token')
+    assert.isDefined(refreshCookie)
+    assert.isTrue(refreshCookie!.httpOnly)
+    assert.isNotEmpty(refreshCookie!.value)
 
     const refreshed = await User.findOrFail(user.id)
     assert.isNotNull(refreshed.password)
 
     const invitation = await Invitation.query().where('user_id', user.id).firstOrFail()
     assert.isNotNull(invitation.consumedAt)
-    await db.assertHas('auth_access_tokens', { tokenable_id: user.id })
+    await db.assertHas('auth_access_tokens', { tokenable_id: user.id }, 2)
 
     const login = await client
       .visit('auth.access_tokens.store')

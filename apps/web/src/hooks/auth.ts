@@ -19,7 +19,7 @@ export function useLogin() {
   return useMutation(
     api.auth.accessTokens.store.mutationOptions({
       onSuccess: ({ data }) => {
-        setToken(data.token)
+        setToken(data.accessToken)
         queryClient.invalidateQueries({
           queryKey: api.profile.profile.pathKey(),
         })

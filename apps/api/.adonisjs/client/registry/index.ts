@@ -12,6 +12,12 @@ const routes = {
     tokens: [{"old":"/api/v1/auth/login","type":0,"val":"api","end":""},{"old":"/api/v1/auth/login","type":0,"val":"v1","end":""},{"old":"/api/v1/auth/login","type":0,"val":"auth","end":""},{"old":"/api/v1/auth/login","type":0,"val":"login","end":""}],
     types: placeholder as Registry['auth.access_tokens.store']['types'],
   },
+  'auth.refresh_tokens.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/auth/refresh',
+    tokens: [{"old":"/api/v1/auth/refresh","type":0,"val":"api","end":""},{"old":"/api/v1/auth/refresh","type":0,"val":"v1","end":""},{"old":"/api/v1/auth/refresh","type":0,"val":"auth","end":""},{"old":"/api/v1/auth/refresh","type":0,"val":"refresh","end":""}],
+    types: placeholder as Registry['auth.refresh_tokens.store']['types'],
+  },
   'auth.password_reset.forgot': {
     methods: ["POST"],
     pattern: '/api/v1/auth/forgot-password',

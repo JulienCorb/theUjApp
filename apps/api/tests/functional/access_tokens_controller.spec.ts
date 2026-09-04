@@ -6,14 +6,22 @@ import User from '#models/user'
 import { InvitationTestFactory } from '#tests/factories/invitation_test_factory'
 import { UserTestFactory } from '#tests/factories/user_test_factory'
 import { MAX_LOGIN_PASSWORD_LENGTH } from '#validators/user'
+
 test.group('AccessTokensController store (login)', (group) => {
   group.each.setup(() => testUtils.db().wrapInGlobalTransaction())
   group.each.setup(async () => {
     await limiter.clear()
   })
 
-  test('login succeeds with correct credentials', async ({ client, db }) => {
-    await UserTestFactory.createWithToken({ email: 'login@example.com', password: 'Password123!' })
+  test('login succeeds with correct credentials and sets the refresh cookie', async ({
+    client,
+    db,
+    assert,
+  }) => {
+    await UserTestFactory.create({
+      email: 'login@example.com',
+      password: 'Password123!',
+    })
 
     const response = await client
       .visit('auth.access_tokens.store')
@@ -29,16 +37,37 @@ test.group('AccessTokensController store (login)', (group) => {
         user: {
           email: 'login@example.com',
         },
-        token: response.body().data.token,
+        accessToken: response.body().data.accessToken,
       },
     })
+    assert.isString(response.body().data.accessToken)
+    assert.isNotEmpty(response.body().data.accessToken)
+    assert.isUndefined((response.body().data as any).refreshToken)
+
+    const refreshCookie = response.cookie('refresh_token')
+    assert.isDefined(refreshCookie)
+    assert.isTrue(refreshCookie!.httpOnly)
+    assert.isNotEmpty(refreshCookie!.value)
+
+    const setCookies = response.header('set-cookie') as string | string[]
+    const rawSetCookie = (
+      Array.isArray(setCookies)
+        ? setCookies.find((header) => header.startsWith('refresh_token='))
+        : setCookies
+    )!
+    const rawRefreshToken = rawSetCookie.split(';')[0]!.split('=').slice(1).join('=')
+    assert.isFalse(rawRefreshToken.startsWith('s%3A'), 'refresh cookie must be plain, not signed')
+    assert.isFalse(
+      rawRefreshToken.startsWith('e%3A'),
+      'refresh cookie must be plain, not encrypted'
+    )
 
     const user = await User.findByOrFail('email', 'login@example.com')
-    await db.assertHas('auth_access_tokens', { tokenable_id: user.id })
+    await db.assertHas('auth_access_tokens', { tokenable_id: user.id }, 2)
   })
 
   test('login normalizes email', async ({ client }) => {
-    await UserTestFactory.createWithToken({
+    await UserTestFactory.create({
       email: 'normalizelogin@example.com',
       password: 'Password123!',
     })
@@ -62,7 +91,7 @@ test.group('AccessTokensController store (login)', (group) => {
   })
 
   test('login fails with wrong password', async ({ client }) => {
-    await UserTestFactory.createWithToken({
+    await UserTestFactory.createWithTokens({
       email: 'wrongpw@example.com',
       password: 'Password123!',
     })
@@ -188,30 +217,64 @@ test.group('AccessTokensController destroy (logout)', (group) => {
     response.assertStatus(401)
   })
 
-  test('logout revokes token and subsequent request with old token returns 401', async ({
+  test('logout revokes the access and refresh tokens and clears the cookie', async ({
     client,
+    db,
+    assert,
   }) => {
-    const { token } = await UserTestFactory.createWithToken({
+    const { user, accessToken, refreshToken } = await UserTestFactory.createWithTokens({
       email: 'logout@example.com',
       password: 'Password123!',
     })
 
-    const response = await client.visit('profile.access_tokens.destroy').bearerToken(token).send()
+    const response = await client
+      .visit('profile.access_tokens.destroy')
+      .bearerToken(accessToken)
+      .withPlainCookie('refresh_token', refreshToken)
+      .send()
 
     response.assertStatus(200)
 
-    const subsequentResponse = await client.visit('profile.profile.show').bearerToken(token).send()
+    const subsequentResponse = await client
+      .visit('profile.profile.show')
+      .bearerToken(accessToken)
+      .send()
 
     subsequentResponse.assertStatus(401)
+
+    await db.assertMissing('auth_access_tokens', { tokenable_id: user.id })
+
+    const clearedCookie = response.cookie('refresh_token')
+    assert.isDefined(clearedCookie)
+    assert.isDefined(clearedCookie!.expires)
+  })
+
+  test('logout without a refresh cookie still revokes the access token', async ({ client, db }) => {
+    const { user, accessToken } = await UserTestFactory.createWithTokens({
+      email: 'logout-no-cookie@example.com',
+      password: 'Password123!',
+    })
+
+    const response = await client
+      .visit('profile.access_tokens.destroy')
+      .bearerToken(accessToken)
+      .send()
+
+    response.assertStatus(200)
+
+    await db.assertMissing('auth_access_tokens', { tokenable_id: user.id, type: 'auth_token' })
   })
 
   test('logout response is wrapped in data key', async ({ client, assert }) => {
-    const { token } = await UserTestFactory.createWithToken({
+    const { accessToken } = await UserTestFactory.createWithTokens({
       email: 'serialize@example.com',
       password: 'Password123!',
     })
 
-    const response = await client.visit('profile.access_tokens.destroy').bearerToken(token).send()
+    const response = await client
+      .visit('profile.access_tokens.destroy')
+      .bearerToken(accessToken)
+      .send()
 
     response.assertStatus(200)
     assert.isDefined((response.body() as any).data)

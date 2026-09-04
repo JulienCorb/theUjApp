@@ -78,12 +78,15 @@ export default class InvitationService {
 
   /**
    * Consumes the given invitation token, sets the user's password and issues
-   * an access token (auto-login).
+   * an access + refresh token pair (auto-login).
    *
    * @throws {@link Exception} E_INVALID_INVITATION when the token is unknown,
    * already consumed or expired
    */
-  async accept(token: string, password: string): Promise<{ user: User; token: string }> {
+  async accept(
+    token: string,
+    password: string
+  ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
     const tokenHash = this.hashToken(token)
 
     const user = await db.transaction(async (client) => {
@@ -120,9 +123,7 @@ export default class InvitationService {
       return invitedUser
     })
 
-    const accessToken = await this.authService.createAccessToken(user)
-
-    return { user, token: accessToken }
+    return this.authService.issueTokenPair(user)
   }
 
   /**

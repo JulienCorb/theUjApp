@@ -6,6 +6,7 @@ import InvitationService from '#services/invitation_service'
 import UserTransformer from '#transformers/user_transformer'
 import { acceptInvitationValidator, validateInvitationValidator } from '#validators/invitation'
 import { createUserValidator } from '#validators/user'
+import { setRefreshTokenCookie } from '#controllers/shared/refresh_token'
 
 @inject()
 export default class InvitationsController {
@@ -34,15 +35,16 @@ export default class InvitationsController {
     })
   }
 
-  async accept({ request, serialize }: HttpContext) {
+  async accept({ request, response, serialize }: HttpContext) {
     const { token, password } = await request.validateUsing(acceptInvitationValidator)
 
-    const { user, token: accessToken } = await this.invitationService.accept(token, password)
+    const { user, accessToken, refreshToken } = await this.invitationService.accept(token, password)
+    setRefreshTokenCookie(response, refreshToken)
 
     return serialize({
       message: 'Account created successfully.',
       user: UserTransformer.transform(user),
-      token: accessToken,
+      accessToken,
     })
   }
 }

@@ -19,6 +19,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/access_tokens_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'auth.refresh_tokens.store': {
+    methods: ["POST"]
+    pattern: '/api/v1/auth/refresh'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/refresh_tokens_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/refresh_tokens_controller').default['store']>>>
+    }
+  }
   'auth.password_reset.forgot': {
     methods: ["POST"]
     pattern: '/api/v1/auth/forgot-password'

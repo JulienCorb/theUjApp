@@ -7,12 +7,12 @@ test.group('ProfileController show', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
   test('profile returns authenticated user', async ({ client }) => {
-    const { user, token } = await UserTestFactory.createWithToken({
+    const { user, accessToken } = await UserTestFactory.createWithTokens({
       email: 'profile@example.com',
       password: 'Password123!',
     })
 
-    const response = await client.visit('profile.profile.show').bearerToken(token).send()
+    const response = await client.visit('profile.profile.show').bearerToken(accessToken).send()
 
     response.assertStatus(200)
     response.assertBodyContains({
@@ -27,12 +27,12 @@ test.group('ProfileController show', (group) => {
     client,
     assert,
   }) => {
-    const { token } = await UserTestFactory.createWithToken({
+    const { accessToken } = await UserTestFactory.createWithTokens({
       email: 'fields@example.com',
       password: 'Password123!',
     })
 
-    const response = await client.visit('profile.profile.show').bearerToken(token).send()
+    const response = await client.visit('profile.profile.show').bearerToken(accessToken).send()
 
     response.assertStatus(200)
     const user = response.body().data
@@ -46,12 +46,12 @@ test.group('ProfileController show', (group) => {
   })
 
   test('profile does not return password', async ({ client, assert }) => {
-    const { token } = await UserTestFactory.createWithToken({
+    const { accessToken } = await UserTestFactory.createWithTokens({
       email: 'nopassword@example.com',
       password: 'Password123!',
     })
 
-    const response = await client.visit('profile.profile.show').bearerToken(token).send()
+    const response = await client.visit('profile.profile.show').bearerToken(accessToken).send()
 
     response.assertStatus(200)
     assert.isUndefined((response.body().data as any).password)
