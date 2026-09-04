@@ -3,8 +3,6 @@
   "auth_forgot_password_link": "Mot de passe oublié ?",
   "auth_login_link": "Se connecter",
   "auth_login_prompt": "Vous avez déjà un compte ?",
-  "auth_signup_link": "S'inscrire",
-  "auth_signup_prompt": "Vous n'avez pas de compte ?",
   "dashboard_email": "E-mail : ",
   "dashboard_logged_in": "Vous êtes connecté(e).",
   "dashboard_member_since": "Membre depuis : ",
@@ -32,9 +30,5 @@
   "reset_password_submit_pending": "Réinitialisation en cours…",
   "reset_password_success": "Votre mot de passe a été réinitialisé. Vous pouvez maintenant vous connecter.",
   "reset_password_title": "Réinitialiser votre mot de passe",
-  "reset_password_subtitle": "Choisissez un nouveau mot de passe pour votre compte.",
-  "signup_submit": "S'inscrire",
-  "signup_submit_pending": "Création du compte…",
-  "signup_title": "Créer votre compte",
-  "signup_subtitle": "Saisissez vos informations ci-dessous pour vous inscrire."
+  "reset_password_subtitle": "Choisissez un nouveau mot de passe pour votre compte."
 }

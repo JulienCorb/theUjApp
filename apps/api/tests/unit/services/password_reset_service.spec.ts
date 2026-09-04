@@ -14,16 +14,15 @@ import User from '#models/user'
 import AuthService from '#services/auth_service'
 import MailService from '#services/mail_service'
 import PasswordResetService from '#services/password_reset_service'
+import { PasswordResetTestFactory } from '#tests/factories/password_reset_test_factory'
 import { UserTestFactory } from '#tests/factories/user_test_factory'
 
 const passwordResetService = new PasswordResetService(new AuthService(), new MailService())
 
 test.group('PasswordResetService', (group) => {
   group.each.setup(() => testUtils.db().wrapInGlobalTransaction())
-  group.each.teardown(() => mail.restore())
 
   test('requestReset issues a token and stores its HMAC hash', async ({ assert }) => {
-    mail.restore()
     const { mails } = mail.fake()
     const user = await UserTestFactory.create({ email: 'issue@example.com' })
 
@@ -39,7 +38,6 @@ test.group('PasswordResetService', (group) => {
   })
 
   test('requestReset stores a deterministic HMAC of the raw token', async ({ assert }) => {
-    mail.restore()
     const { mails } = mail.fake()
     const user = await UserTestFactory.create({ email: 'hmac@example.com' })
 
@@ -54,7 +52,6 @@ test.group('PasswordResetService', (group) => {
   })
 
   test('requestReset is a no-op for unknown emails', async ({ assert }) => {
-    mail.restore()
     const { mails } = mail.fake()
 
     await passwordResetService.requestReset('missing@example.com')
@@ -65,7 +62,6 @@ test.group('PasswordResetService', (group) => {
   })
 
   test('requestReset invalidates outstanding tokens for the user', async ({ assert }) => {
-    mail.restore()
     mail.fake()
     const user = await UserTestFactory.create({ email: 'rotate@example.com' })
 
@@ -90,31 +86,25 @@ test.group('PasswordResetService', (group) => {
   })
 
   test('reset updates the password and marks the token consumed', async ({ assert }) => {
-    mail.restore()
-    const { mails } = mail.fake()
     const user = await UserTestFactory.create({
       email: 'reset@example.com',
       password: 'OldPassword123!',
     })
-    await passwordResetService.requestReset('reset@example.com')
-    const rawToken = (mails.sent()[0] as PasswordResetNotification).getResetToken()
+    const rawToken = await PasswordResetTestFactory.requestReset('reset@example.com')
 
     await passwordResetService.reset(rawToken, 'NewPassword123!')
 
     const refreshed = await User.findOrFail(user.id)
-    assert.isTrue(await hash.verify(refreshed.password, 'NewPassword123!'))
-    assert.isFalse(await hash.verify(refreshed.password, 'OldPassword123!'))
+    assert.isTrue(await hash.verify(refreshed.password!, 'NewPassword123!'))
+    assert.isFalse(await hash.verify(refreshed.password!, 'OldPassword123!'))
 
     const token = await PasswordResetToken.query().where('user_id', user.id).firstOrFail()
     assert.isNotNull(token.consumedAt)
   })
 
   test('reset rejects a consumed token', async ({ assert }) => {
-    mail.restore()
-    const { mails } = mail.fake()
     await UserTestFactory.create({ email: 'consumed@example.com' })
-    await passwordResetService.requestReset('consumed@example.com')
-    const rawToken = (mails.sent()[0] as PasswordResetNotification).getResetToken()
+    const rawToken = await PasswordResetTestFactory.requestReset('consumed@example.com')
 
     await passwordResetService.reset(rawToken, 'NewPassword123!')
 
@@ -125,11 +115,8 @@ test.group('PasswordResetService', (group) => {
   })
 
   test('reset rejects an expired token', async ({ assert }) => {
-    mail.restore()
-    const { mails } = mail.fake()
     const user = await UserTestFactory.create({ email: 'expired@example.com' })
-    await passwordResetService.requestReset('expired@example.com')
-    const rawToken = (mails.sent()[0] as PasswordResetNotification).getResetToken()
+    const rawToken = await PasswordResetTestFactory.requestReset('expired@example.com')
 
     const token = await PasswordResetToken.query().where('user_id', user.id).firstOrFail()
     token.expiresAt = DateTime.now().minus({ minutes: 1 })
@@ -142,7 +129,6 @@ test.group('PasswordResetService', (group) => {
   })
 
   test('reset rejects an unknown token', async ({ assert }) => {
-    mail.restore()
     mail.fake()
 
     await assert.rejects(
@@ -152,11 +138,8 @@ test.group('PasswordResetService', (group) => {
   })
 
   test('reset revokes all access tokens of the user', async ({ assert }) => {
-    mail.restore()
-    const { mails } = mail.fake()
-    const user = await UserTestFactory.create({ email: 'revoke@example.com' })
-    await passwordResetService.requestReset('revoke@example.com')
-    const rawToken = (mails.sent()[0] as PasswordResetNotification).getResetToken()
+    const { user } = await UserTestFactory.createWithToken({ email: 'revoke@example.com' })
+    const rawToken = await PasswordResetTestFactory.requestReset('revoke@example.com')
 
     const tokensBefore = await User.accessTokens.all(user)
     assert.equal(tokensBefore.length, 1)

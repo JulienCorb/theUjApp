@@ -1,7 +1,7 @@
 import env from '#start/env'
 
 /**
- * Configuration for the password reset feature.
+ * Configuration for the invitation feature.
  *
  * All environment access for this feature happens here — application code
  * must import from this config instead of reading env vars directly.
@@ -9,15 +9,15 @@ import env from '#start/env'
 export const webAppUrl = env.get('WEB_APP_URL')
 
 /**
- * Validity window of a password reset link in minutes.
+ * Validity window of an invitation link in days.
  */
-export const ttlMinutes = env.get('PASSWORD_RESET_TTL_MINUTES', 60)
+export const ttlDays = env.get('INVITATION_TTL_DAYS', 7)
 
 /**
- * HMAC key used to hash password reset tokens before storage.
+ * HMAC key used to hash invitation tokens before storage.
  *
  * Required (no fallback to APP_KEY): the dedicated secret keeps token
  * protection independent of the master key. Rotating it invalidates every
- * outstanding password reset link.
+ * outstanding invitation link.
  */
-export const hmacSecret = env.get('PASSWORD_RESET_SECRET').release()
+export const hmacSecret = env.get('INVITATION_SECRET').release()

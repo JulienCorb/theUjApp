@@ -11,10 +11,11 @@ import { middleware } from '#start/kernel'
 import router from '@adonisjs/core/services/router'
 import { controllers } from '#generated/controllers'
 import {
+  createInvitationThrottle,
+  invitationAcceptThrottle,
   loginThrottle,
   passwordResetRequestThrottle,
   passwordResetThrottle,
-  signupThrottle,
 } from '#start/limiter'
 
 router.get('/', () => {
@@ -25,7 +26,6 @@ router
   .group(() => {
     router
       .group(() => {
-        router.post('signup', [controllers.NewAccount, 'store']).use(signupThrottle)
         router.post('login', [controllers.AccessTokens, 'store']).use(loginThrottle)
         router
           .post('forgot-password', [controllers.PasswordReset, 'forgot'])
@@ -33,16 +33,24 @@ router
         router
           .post('reset-password', [controllers.PasswordReset, 'reset'])
           .use(passwordResetThrottle)
+        router
+          .post('invitations/accept', [controllers.Invitations, 'accept'])
+          .use(invitationAcceptThrottle)
+        router.get('invitations/validate', [controllers.Invitations, 'validate'])
       })
       .prefix('auth')
       .as('auth')
 
     router
       .group(() => {
-        // TODO(security): add an authorization layer (policies/abilities) once
-        // multi-user or admin resources are introduced. Currently authentication
-        // is sufficient because all endpoints are self-scoped, but "authenticated"
-        // must not be mistaken for "authorized" when new resources are added.
+        router.post('', [controllers.Invitations, 'store']).use(createInvitationThrottle)
+      })
+      .prefix('invitations')
+      .as('invitations')
+      .use(middleware.auth())
+
+    router
+      .group(() => {
         router.get('profile', [controllers.Profile, 'show'])
         router.post('logout', [controllers.AccessTokens, 'destroy'])
       })

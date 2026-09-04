@@ -25,8 +25,12 @@ export default await Env.create(new URL('../', import.meta.url), {
   WEB_APP_URL: Env.schema.string({ format: 'url', tld: false }),
 
   // Password reset
-  PASSWORD_RESET_SECRET: Env.schema.secret.optional(),
+  PASSWORD_RESET_SECRET: Env.schema.secret(),
   PASSWORD_RESET_TTL_MINUTES: Env.schema.number.optional(),
+
+  // Invitations
+  INVITATION_SECRET: Env.schema.secret(),
+  INVITATION_TTL_DAYS: Env.schema.number.optional(),
 
   // Database
   DB_HOST: Env.schema.string({ format: 'host' }),

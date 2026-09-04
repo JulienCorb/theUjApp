@@ -90,7 +90,7 @@ Both `#/*` and `@/*` map to `./src/*` (defined in both `tsconfig.json` `paths` a
 
 - **Paraglide.js** (`@inlang/paraglide-js`) — compiler-first i18n. Messages live in `messages/fr.json` (project root), source language `fr` only for now (see `project.inlang/settings.json`).
 - **Usage:** import `m` from `#/paraglide/messages.js` and call typed message functions (`m.login_title()`). No provider needed — messages resolve to the base locale (`fr`).
-- **Markup:** don't put links/formatting inside messages — keep sentences plain and compose link text in JSX (e.g. `{m.auth_signup_prompt()}{' '}<Link ...>{m.auth_signup_link()}</Link>` in `login.tsx`).
+- **Markup:** don't put links/formatting inside messages — keep sentences plain and compose link text in JSX (e.g. `{m.auth_login_prompt()}{' '}<Link ...>{m.auth_login_link()}</Link>` in `login.tsx`).
 - **Codegen:** the Vite plugin compiles messages to `src/paraglide/` on dev/build (`outputStructure: 'locale-modules'` is pinned in `vite.config.ts`). The folder is **committed** (like `routeTree.gen.ts`). Regenerate manually with `pnpm exec paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --output-structure locale-modules --no-emit-git-ignore`.
 - **Scope:** only UI strings are translated. API-sent messages (e.g. 422 validation errors) stay English — localizing those belongs on the API side.
 - To add a locale: add the tag to `settings.json` `locales` + create `messages/<tag>.json` mirroring `fr.json`.

@@ -13,10 +13,8 @@ test.group('PasswordResetController forgot (request reset)', (group) => {
   group.each.setup(async () => {
     await limiter.clear()
   })
-  group.each.teardown(() => mail.restore())
 
   test('issues a reset token and sends a reset email', async ({ client, db, assert }) => {
-    mail.restore()
     const { mails } = mail.fake()
     await UserTestFactory.create({ email: 'forgot@example.com' })
 
@@ -41,7 +39,6 @@ test.group('PasswordResetController forgot (request reset)', (group) => {
   })
 
   test('does not reveal whether an email exists', async ({ client }) => {
-    mail.restore()
     const { mails } = mail.fake()
 
     const response = await client
@@ -95,10 +92,8 @@ test.group('PasswordResetController reset (consume token)', (group) => {
   group.each.setup(async () => {
     await limiter.clear()
   })
-  group.each.teardown(() => mail.restore())
 
   test('resets the password with a valid token', async ({ client, assert }) => {
-    mail.restore()
     const { mails } = mail.fake()
     const user = await UserTestFactory.create({
       email: 'reset@example.com',
@@ -148,7 +143,6 @@ test.group('PasswordResetController reset (consume token)', (group) => {
   })
 
   test('token is single-use: replaying it returns 400', async ({ client }) => {
-    mail.restore()
     const { mails } = mail.fake()
     await UserTestFactory.create({ email: 'replay@example.com' })
 
@@ -190,7 +184,6 @@ test.group('PasswordResetController reset (consume token)', (group) => {
   })
 
   test('invalidates previous reset links when a new one is requested', async ({ client }) => {
-    mail.restore()
     const { mails } = mail.fake()
     await UserTestFactory.create({ email: 'rotation@example.com' })
 
@@ -222,7 +215,6 @@ test.group('PasswordResetController reset (consume token)', (group) => {
   })
 
   test('revokes all access tokens after a successful reset', async ({ client, db }) => {
-    mail.restore()
     const { mails } = mail.fake()
     const { user, token } = await UserTestFactory.createWithToken({ email: 'revoke@example.com' })
 

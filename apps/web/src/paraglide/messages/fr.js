@@ -3,8 +3,6 @@
 /** @typedef {{}} Auth_Forgot_Password_LinkInputs */
 /** @typedef {{}} Auth_Login_LinkInputs */
 /** @typedef {{}} Auth_Login_PromptInputs */
-/** @typedef {{}} Auth_Signup_LinkInputs */
-/** @typedef {{}} Auth_Signup_PromptInputs */
 /** @typedef {{}} Dashboard_EmailInputs */
 /** @typedef {{}} Dashboard_Logged_InInputs */
 /** @typedef {{}} Dashboard_Member_SinceInputs */
@@ -33,10 +31,6 @@
 /** @typedef {{}} Reset_Password_SubtitleInputs */
 /** @typedef {{}} Reset_Password_SuccessInputs */
 /** @typedef {{}} Reset_Password_TitleInputs */
-/** @typedef {{}} Signup_SubmitInputs */
-/** @typedef {{}} Signup_Submit_PendingInputs */
-/** @typedef {{}} Signup_SubtitleInputs */
-/** @typedef {{}} Signup_TitleInputs */
 
 
 export const auth_forgot_password_link = /** @type {(inputs: Auth_Forgot_Password_LinkInputs) => LocalizedString} */ () => {
@@ -49,14 +43,6 @@ export const auth_login_link = /** @type {(inputs: Auth_Login_LinkInputs) => Loc
 
 export const auth_login_prompt = /** @type {(inputs: Auth_Login_PromptInputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`Vous avez déjà un compte ?`)
-};
-
-export const auth_signup_link = /** @type {(inputs: Auth_Signup_LinkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`S'inscrire`)
-};
-
-export const auth_signup_prompt = /** @type {(inputs: Auth_Signup_PromptInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Vous n'avez pas de compte ?`)
 };
 
 export const dashboard_email = /** @type {(inputs: Dashboard_EmailInputs) => LocalizedString} */ () => {
@@ -169,20 +155,4 @@ export const reset_password_success = /** @type {(inputs: Reset_Password_Success
 
 export const reset_password_title = /** @type {(inputs: Reset_Password_TitleInputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`Réinitialiser votre mot de passe`)
-};
-
-export const signup_submit = /** @type {(inputs: Signup_SubmitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`S'inscrire`)
-};
-
-export const signup_submit_pending = /** @type {(inputs: Signup_Submit_PendingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Création du compte…`)
-};
-
-export const signup_subtitle = /** @type {(inputs: Signup_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saisissez vos informations ci-dessous pour vous inscrire.`)
-};
-
-export const signup_title = /** @type {(inputs: Signup_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Créer votre compte`)
 };

@@ -5,8 +5,6 @@ import { getLocale, experimentalStaticLocale } from "../runtime.js"
 /** @typedef {{}} Auth_Forgot_Password_LinkInputs */
 /** @typedef {{}} Auth_Login_LinkInputs */
 /** @typedef {{}} Auth_Login_PromptInputs */
-/** @typedef {{}} Auth_Signup_LinkInputs */
-/** @typedef {{}} Auth_Signup_PromptInputs */
 /** @typedef {{}} Dashboard_EmailInputs */
 /** @typedef {{}} Dashboard_Logged_InInputs */
 /** @typedef {{}} Dashboard_Member_SinceInputs */
@@ -35,10 +33,6 @@ import { getLocale, experimentalStaticLocale } from "../runtime.js"
 /** @typedef {{}} Reset_Password_SubtitleInputs */
 /** @typedef {{}} Reset_Password_SuccessInputs */
 /** @typedef {{}} Reset_Password_TitleInputs */
-/** @typedef {{}} Signup_SubmitInputs */
-/** @typedef {{}} Signup_Submit_PendingInputs */
-/** @typedef {{}} Signup_SubtitleInputs */
-/** @typedef {{}} Signup_TitleInputs */
 import * as __fr from "./fr.js"
 /**
 
@@ -69,26 +63,6 @@ export const auth_login_link = /** @type {((inputs?: Auth_Login_LinkInputs, opti
 export const auth_login_prompt = /** @type {((inputs?: Auth_Login_PromptInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Auth_Login_PromptInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
 	experimentalStaticLocale ?? options.locale ?? getLocale()
 	return __fr.auth_login_prompt(inputs)
-});
-/**
-
-* @param {Auth_Signup_LinkInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const auth_signup_link = /** @type {((inputs?: Auth_Signup_LinkInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Auth_Signup_LinkInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	experimentalStaticLocale ?? options.locale ?? getLocale()
-	return __fr.auth_signup_link(inputs)
-});
-/**
-
-* @param {Auth_Signup_PromptInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const auth_signup_prompt = /** @type {((inputs?: Auth_Signup_PromptInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Auth_Signup_PromptInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	experimentalStaticLocale ?? options.locale ?? getLocale()
-	return __fr.auth_signup_prompt(inputs)
 });
 /**
 
@@ -369,44 +343,4 @@ export const reset_password_success = /** @type {((inputs?: Reset_Password_Succe
 export const reset_password_title = /** @type {((inputs?: Reset_Password_TitleInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Reset_Password_TitleInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
 	experimentalStaticLocale ?? options.locale ?? getLocale()
 	return __fr.reset_password_title(inputs)
-});
-/**
-
-* @param {Signup_SubmitInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const signup_submit = /** @type {((inputs?: Signup_SubmitInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Signup_SubmitInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	experimentalStaticLocale ?? options.locale ?? getLocale()
-	return __fr.signup_submit(inputs)
-});
-/**
-
-* @param {Signup_Submit_PendingInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const signup_submit_pending = /** @type {((inputs?: Signup_Submit_PendingInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Signup_Submit_PendingInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	experimentalStaticLocale ?? options.locale ?? getLocale()
-	return __fr.signup_submit_pending(inputs)
-});
-/**
-
-* @param {Signup_SubtitleInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const signup_subtitle = /** @type {((inputs?: Signup_SubtitleInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Signup_SubtitleInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	experimentalStaticLocale ?? options.locale ?? getLocale()
-	return __fr.signup_subtitle(inputs)
-});
-/**
-
-* @param {Signup_TitleInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const signup_title = /** @type {((inputs?: Signup_TitleInputs, options?: { locale?: "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Signup_TitleInputs, { locale?: "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	experimentalStaticLocale ?? options.locale ?? getLocale()
-	return __fr.signup_title(inputs)
 });

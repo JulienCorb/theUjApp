@@ -4,24 +4,29 @@ type ParamValue = string | number | bigint | boolean
 
 export type ScannedRoutes = {
   ALL: {
-    'auth.new_account.store': { paramsTuple?: []; params?: {} }
     'auth.access_tokens.store': { paramsTuple?: []; params?: {} }
     'auth.password_reset.forgot': { paramsTuple?: []; params?: {} }
     'auth.password_reset.reset': { paramsTuple?: []; params?: {} }
+    'auth.invitations.accept': { paramsTuple?: []; params?: {} }
+    'auth.invitations.validate': { paramsTuple?: []; params?: {} }
+    'invitations.invitations.store': { paramsTuple?: []; params?: {} }
     'profile.profile.show': { paramsTuple?: []; params?: {} }
     'profile.access_tokens.destroy': { paramsTuple?: []; params?: {} }
   }
   GET: {
+    'auth.invitations.validate': { paramsTuple?: []; params?: {} }
     'profile.profile.show': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
+    'auth.invitations.validate': { paramsTuple?: []; params?: {} }
     'profile.profile.show': { paramsTuple?: []; params?: {} }
   }
   POST: {
-    'auth.new_account.store': { paramsTuple?: []; params?: {} }
     'auth.access_tokens.store': { paramsTuple?: []; params?: {} }
     'auth.password_reset.forgot': { paramsTuple?: []; params?: {} }
     'auth.password_reset.reset': { paramsTuple?: []; params?: {} }
+    'auth.invitations.accept': { paramsTuple?: []; params?: {} }
+    'invitations.invitations.store': { paramsTuple?: []; params?: {} }
     'profile.access_tokens.destroy': { paramsTuple?: []; params?: {} }
   }
 }

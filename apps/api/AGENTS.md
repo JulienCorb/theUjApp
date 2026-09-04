@@ -18,6 +18,7 @@ The web app consumes the registry as `@theuj/api/registry` via a `workspace:*` d
 - `bin/test.ts` sets `NODE_ENV=test`, so `.env.test` is loaded: DB is `the_uj_app_test` (user `julienc`). `.env.test` is committed (local dev only, no secrets); `.env` never is. Tests hit a real PostgreSQL instance, so it must be running.
 - Migrations run automatically via `runnerHooks.setup` in `tests/bootstrap.ts` — the test env is the **only** place migrations are auto-run; no manual migration step needed there.
 - Hash is faked globally via `configureSuite` in `tests/bootstrap.ts` — passwords are instant. Never run real scrypt in tests.
+- Mail is faked globally via `configureSuite` in `tests/bootstrap.ts` — the real transport is never used in tests. Specs that assert sent mails call `mail.fake()` (resets the capture store) and destructure `{ mails }` from it. **Never call `mail.restore()` in tests** — it re-enables the real transport and pollutes test logs with delivery error logs.
 - Functional suite boots the HTTP server automatically (`tests/bootstrap.ts`).
 
 ### Suites
@@ -37,9 +38,9 @@ Paths below are relative to `apps/api/`.
 ### Test factories
 
 - Test factories live in `tests/factories/` (not `database/factories.ts`). They are simple static classes — no Lucid factory dependency.
-- Naming: `UserTestFactory`, `PostTestFactory`, etc. — the `TestFactory` suffix distinguishes them from Lucid's `UserFactory`.
+- Naming: `UserTestFactory`, `InvitationTestFactory`, `PasswordResetTestFactory`, `PostTestFactory`, etc. — the `TestFactory` suffix distinguishes them from Lucid's `UserFactory`.
 - **Must call real service functions** (not `Model.create()` directly) so fixtures exercise production business logic.
-- Never call `Model.create()` or `Service.method()` directly in tests — go through test factories. The only exception: when the service method itself is the system under test (e.g. unit tests of `AuthService.register` call it directly, while other tests create users via `UserTestFactory`).
+- Never call `Model.create()` or `Service.method()` directly in tests — go through test factories. The only exception: when the service method itself is the system under test (e.g. unit tests of `InvitationService.accept` call it directly). Service methods used to **set up state for a different SUT** go through factories too — e.g. obtain invitation tokens via `InvitationTestFactory.create()` and reset tokens via `PasswordResetTestFactory.requestReset()` instead of calling `invite()`/`requestReset()` directly.
 - Custom methods return richer shapes when needed (e.g. `UserTestFactory.createWithToken()` returns `{ user, token }`).
 - Override caveat: services normalize data (e.g. email trim+lowercase), so override input may differ from DB state. Always read from the model instance.
 

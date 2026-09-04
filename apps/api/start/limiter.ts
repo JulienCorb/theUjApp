@@ -1,7 +1,7 @@
 import limiter from '@adonisjs/limiter/services/main'
 
-export const signupThrottle = limiter.define('signup', () => {
-  return limiter.allowRequests(5).every('1 minute')
+export const createInvitationThrottle = limiter.define('create-invitation', () => {
+  return limiter.allowRequests(20).every('1 minute')
 })
 
 export const loginThrottle = limiter.define('login', () => {
@@ -27,5 +27,16 @@ export const passwordResetThrottle = limiter.define('password-reset', (ctx) => {
     .usingKey(`password_reset_${ctx.request.ip()}`)
     .limitExceeded((error) => {
       error.setMessage('Too many password reset attempts. Please try again later.')
+    })
+})
+
+export const invitationAcceptThrottle = limiter.define('invitation-accept', (ctx) => {
+  return limiter
+    .allowRequests(10)
+    .every('15 minutes')
+    .blockFor('30 minutes')
+    .usingKey(`invitation_accept_${ctx.request.ip()}`)
+    .limitExceeded((error) => {
+      error.setMessage('Too many invitation accept attempts. Please try again later.')
     })
 })

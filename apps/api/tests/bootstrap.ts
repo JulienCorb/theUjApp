@@ -2,6 +2,7 @@ import { assert } from '@japa/assert'
 import { apiClient } from '@japa/api-client'
 import app from '@adonisjs/core/services/app'
 import hash from '@adonisjs/core/services/hash'
+import mail from '@adonisjs/mail/services/main'
 import type { Config } from '@japa/runner/types'
 import { pluginAdonisJS } from '@japa/plugin-adonisjs'
 import { dbAssertions } from '@adonisjs/lucid/plugins/db'
@@ -45,7 +46,11 @@ export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
 export const configureSuite: Config['configureSuite'] = (suite) => {
   suite.setup(() => {
     hash.fake()
-    return () => hash.restore()
+    mail.fake()
+    return () => {
+      hash.restore()
+      mail.restore()
+    }
   })
 
   if (['browser', 'functional', 'e2e'].includes(suite.name)) {

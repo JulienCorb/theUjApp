@@ -1,4 +1,4 @@
 export const policies = {
-  UserPolicy: () => import('#policies/user_policy'),
+  InvitationPolicy: () => import('#policies/invitation_policy'),
 }
 

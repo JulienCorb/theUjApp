@@ -1,10 +1,12 @@
+import { errors } from '@adonisjs/auth'
 import { type AccessToken } from '@adonisjs/auth/access_tokens'
+import hash from '@adonisjs/core/services/hash'
 
 import User from '#models/user'
 
 /**
- * Business logic around authentication: account creation, credential
- * verification, password changes and token revocation.
+ * Business logic around authentication: credential verification, password
+ * changes and token revocation.
  *
  * Controllers must delegate to this service instead of implementing
  * auth logic themselves. The service stays free of HTTP concerns
@@ -12,27 +14,43 @@ import User from '#models/user'
  */
 export default class AuthService {
   /**
-   * Creates a new user account and issues an access token for it.
-   */
-  async register(email: string, password: string) {
-    const normalizedEmail = email.trim().toLowerCase()
-    const user = await User.create({ email: normalizedEmail, password })
-    const token = await User.accessTokens.create(user)
-
-    return { user, token: token.value!.release() }
-  }
-
-  /**
    * Verifies the given credentials and issues a fresh access token.
    *
-   * @throws {@link E_INVALID_CREDENTIALS} when the credentials are invalid
+   * Users that were invited but have not accepted their invitation yet have
+   * no password and are rejected with the same generic error as invalid
+   * credentials (no account-state enumeration).
+   *
+   * @throws {@link errors.E_INVALID_CREDENTIALS} when the credentials are
+   * invalid
    */
   async login(email: string, password: string) {
     const normalizedEmail = email.trim().toLowerCase()
-    const user = await User.verifyCredentials(normalizedEmail, password)
+    const user = await User.findBy('email', normalizedEmail)
+
+    if (!user || !user.password) {
+      if (!user) {
+        await hash.make(password)
+      }
+      throw new errors.E_INVALID_CREDENTIALS('Invalid user credentials')
+    }
+
+    const isValidPassword = await user.verifyPassword(password)
+    if (!isValidPassword) {
+      throw new errors.E_INVALID_CREDENTIALS('Invalid user credentials')
+    }
+
+    const token = await this.createAccessToken(user)
+
+    return { user, token }
+  }
+
+  /**
+   * Issues a fresh access token for the user.
+   */
+  async createAccessToken(user: User): Promise<string> {
     const token = await User.accessTokens.create(user)
 
-    return { user, token: token.value!.release() }
+    return token.value!.release()
   }
 
   /**

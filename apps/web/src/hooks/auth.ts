@@ -28,19 +28,6 @@ export function useLogin() {
   )
 }
 
-export function useSignup() {
-  return useMutation(
-    api.auth.newAccount.store.mutationOptions({
-      onSuccess: ({ data }) => {
-        setToken(data.token)
-        queryClient.invalidateQueries({
-          queryKey: api.profile.profile.pathKey(),
-        })
-      },
-    }),
-  )
-}
-
 export function useLogout() {
   return useMutation({
     mutationFn: () => client.api.profile.accessTokens.destroy({}),

@@ -2,8 +2,6 @@
 /** @typedef {{}} Auth_Forgot_Password_LinkInputs */
 /** @typedef {{}} Auth_Login_LinkInputs */
 /** @typedef {{}} Auth_Login_PromptInputs */
-/** @typedef {{}} Auth_Signup_LinkInputs */
-/** @typedef {{}} Auth_Signup_PromptInputs */
 /** @typedef {{}} Dashboard_EmailInputs */
 /** @typedef {{}} Dashboard_Logged_InInputs */
 /** @typedef {{}} Dashboard_Member_SinceInputs */
@@ -32,15 +30,9 @@
 /** @typedef {{}} Reset_Password_SubtitleInputs */
 /** @typedef {{}} Reset_Password_SuccessInputs */
 /** @typedef {{}} Reset_Password_TitleInputs */
-/** @typedef {{}} Signup_SubmitInputs */
-/** @typedef {{}} Signup_Submit_PendingInputs */
-/** @typedef {{}} Signup_SubtitleInputs */
-/** @typedef {{}} Signup_TitleInputs */
 export const auth_forgot_password_link: (inputs: Auth_Forgot_Password_LinkInputs) => LocalizedString;
 export const auth_login_link: (inputs: Auth_Login_LinkInputs) => LocalizedString;
 export const auth_login_prompt: (inputs: Auth_Login_PromptInputs) => LocalizedString;
-export const auth_signup_link: (inputs: Auth_Signup_LinkInputs) => LocalizedString;
-export const auth_signup_prompt: (inputs: Auth_Signup_PromptInputs) => LocalizedString;
 export const dashboard_email: (inputs: Dashboard_EmailInputs) => LocalizedString;
 export const dashboard_logged_in: (inputs: Dashboard_Logged_InInputs) => LocalizedString;
 export const dashboard_member_since: (inputs: Dashboard_Member_SinceInputs) => LocalizedString;
@@ -69,16 +61,10 @@ export const reset_password_submit_pending: (inputs: Reset_Password_Submit_Pendi
 export const reset_password_subtitle: (inputs: Reset_Password_SubtitleInputs) => LocalizedString;
 export const reset_password_success: (inputs: Reset_Password_SuccessInputs) => LocalizedString;
 export const reset_password_title: (inputs: Reset_Password_TitleInputs) => LocalizedString;
-export const signup_submit: (inputs: Signup_SubmitInputs) => LocalizedString;
-export const signup_submit_pending: (inputs: Signup_Submit_PendingInputs) => LocalizedString;
-export const signup_subtitle: (inputs: Signup_SubtitleInputs) => LocalizedString;
-export const signup_title: (inputs: Signup_TitleInputs) => LocalizedString;
 export type LocalizedString = import("../runtime.js").LocalizedString;
 export type Auth_Forgot_Password_LinkInputs = {};
 export type Auth_Login_LinkInputs = {};
 export type Auth_Login_PromptInputs = {};
-export type Auth_Signup_LinkInputs = {};
-export type Auth_Signup_PromptInputs = {};
 export type Dashboard_EmailInputs = {};
 export type Dashboard_Logged_InInputs = {};
 export type Dashboard_Member_SinceInputs = {};
@@ -107,7 +93,3 @@ export type Reset_Password_Submit_PendingInputs = {};
 export type Reset_Password_SubtitleInputs = {};
 export type Reset_Password_SuccessInputs = {};
 export type Reset_Password_TitleInputs = {};
-export type Signup_SubmitInputs = {};
-export type Signup_Submit_PendingInputs = {};
-export type Signup_SubtitleInputs = {};
-export type Signup_TitleInputs = {};

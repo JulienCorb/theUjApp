@@ -43,6 +43,33 @@ export class AuthAccessTokenSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class InvitationSchema extends BaseModel {
+  static $columns = [
+    'consumedAt',
+    'createdAt',
+    'expiresAt',
+    'id',
+    'tokenHash',
+    'updatedAt',
+    'userId',
+  ] as const
+  $columns = InvitationSchema.$columns
+  @column.dateTime()
+  declare consumedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare tokenHash: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: string
+}
+
 export class LoginChallengeSchema extends BaseModel {
   static $columns = [
     'attempts',
@@ -101,7 +128,7 @@ export class PasswordResetTokenSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'email', 'id', 'password', 'updatedAt'] as const
+  static $columns = ['createdAt', 'email', 'id', 'password', 'role', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -110,7 +137,9 @@ export class UserSchema extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
   @column({ serializeAs: null })
-  declare password: string
+  declare password: string | null
+  @column()
+  declare role: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

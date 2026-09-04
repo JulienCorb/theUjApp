@@ -33,28 +33,6 @@ export const auth_login_prompt: ((inputs?: Auth_Login_PromptInputs, options?: {
 }, {}>;
 /**
 
-* @param {Auth_Signup_LinkInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const auth_signup_link: ((inputs?: Auth_Signup_LinkInputs, options?: {
-    locale?: "fr";
-}) => LocalizedString) & import("../runtime.js").MessageMetadata<Auth_Signup_LinkInputs, {
-    locale?: "fr";
-}, {}>;
-/**
-
-* @param {Auth_Signup_PromptInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const auth_signup_prompt: ((inputs?: Auth_Signup_PromptInputs, options?: {
-    locale?: "fr";
-}) => LocalizedString) & import("../runtime.js").MessageMetadata<Auth_Signup_PromptInputs, {
-    locale?: "fr";
-}, {}>;
-/**
-
 * @param {Dashboard_EmailInputs} inputs
 * @param {{ locale?: "fr" }} options
 * @returns {LocalizedString}
@@ -361,56 +339,10 @@ export const reset_password_title: ((inputs?: Reset_Password_TitleInputs, option
 }) => LocalizedString) & import("../runtime.js").MessageMetadata<Reset_Password_TitleInputs, {
     locale?: "fr";
 }, {}>;
-/**
-
-* @param {Signup_SubmitInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const signup_submit: ((inputs?: Signup_SubmitInputs, options?: {
-    locale?: "fr";
-}) => LocalizedString) & import("../runtime.js").MessageMetadata<Signup_SubmitInputs, {
-    locale?: "fr";
-}, {}>;
-/**
-
-* @param {Signup_Submit_PendingInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const signup_submit_pending: ((inputs?: Signup_Submit_PendingInputs, options?: {
-    locale?: "fr";
-}) => LocalizedString) & import("../runtime.js").MessageMetadata<Signup_Submit_PendingInputs, {
-    locale?: "fr";
-}, {}>;
-/**
-
-* @param {Signup_SubtitleInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const signup_subtitle: ((inputs?: Signup_SubtitleInputs, options?: {
-    locale?: "fr";
-}) => LocalizedString) & import("../runtime.js").MessageMetadata<Signup_SubtitleInputs, {
-    locale?: "fr";
-}, {}>;
-/**
-
-* @param {Signup_TitleInputs} inputs
-* @param {{ locale?: "fr" }} options
-* @returns {LocalizedString}
-*/
-export const signup_title: ((inputs?: Signup_TitleInputs, options?: {
-    locale?: "fr";
-}) => LocalizedString) & import("../runtime.js").MessageMetadata<Signup_TitleInputs, {
-    locale?: "fr";
-}, {}>;
 export type LocalizedString = import("../runtime.js").LocalizedString;
 export type Auth_Forgot_Password_LinkInputs = {};
 export type Auth_Login_LinkInputs = {};
 export type Auth_Login_PromptInputs = {};
-export type Auth_Signup_LinkInputs = {};
-export type Auth_Signup_PromptInputs = {};
 export type Dashboard_EmailInputs = {};
 export type Dashboard_Logged_InInputs = {};
 export type Dashboard_Member_SinceInputs = {};
@@ -439,7 +371,3 @@ export type Reset_Password_Submit_PendingInputs = {};
 export type Reset_Password_SubtitleInputs = {};
 export type Reset_Password_SuccessInputs = {};
 export type Reset_Password_TitleInputs = {};
-export type Signup_SubmitInputs = {};
-export type Signup_Submit_PendingInputs = {};
-export type Signup_SubtitleInputs = {};
-export type Signup_TitleInputs = {};

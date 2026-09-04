@@ -1,7 +1,9 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import limiter from '@adonisjs/limiter/services/main'
+import mail from '@adonisjs/mail/services/main'
 import User from '#models/user'
+import { InvitationTestFactory } from '#tests/factories/invitation_test_factory'
 import { UserTestFactory } from '#tests/factories/user_test_factory'
 import { MAX_LOGIN_PASSWORD_LENGTH } from '#validators/user'
 test.group('AccessTokensController store (login)', (group) => {
@@ -86,6 +88,22 @@ test.group('AccessTokensController store (login)', (group) => {
       .send()
 
     response.assertStatus(400)
+  })
+
+  test('login fails for an invited user that has not accepted yet', async ({ client, db }) => {
+    mail.fake()
+    await InvitationTestFactory.create({ email: 'invited-login@example.com' })
+
+    const response = await client
+      .visit('auth.access_tokens.store')
+      .json({
+        email: 'invited-login@example.com',
+        password: 'Password123!',
+      })
+      .send()
+
+    response.assertStatus(400)
+    await db.assertEmpty('auth_access_tokens')
   })
 
   test('login validation: missing email returns 422', async ({ client }) => {

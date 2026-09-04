@@ -98,8 +98,11 @@ export default class PasswordResetService {
 
   /**
    * Creates a reset token for the user, invalidating any outstanding ones.
+   *
+   * Used by `requestReset` and by test fixtures (PasswordResetTestFactory)
+   * to obtain a raw token without sending an email.
    */
-  private async issue(userId: string): Promise<IssuedPasswordResetToken> {
+  async issue(userId: string): Promise<IssuedPasswordResetToken> {
     const now = DateTime.now()
     const expiresAt = now.plus({ minutes: ttlMinutes })
     const token = randomBytes(PASSWORD_RESET_TOKEN_BYTES).toString('base64url')

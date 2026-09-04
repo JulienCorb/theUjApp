@@ -116,15 +116,6 @@ function Login() {
                     : m.login_submit()}
                 </Button>
                 <FieldDescription className="text-center">
-                  {m.auth_signup_prompt()}{' '}
-                  <Link
-                    to="/signup"
-                    className="underline underline-offset-4 hover:text-primary"
-                  >
-                    {m.auth_signup_link()}
-                  </Link>
-                </FieldDescription>
-                <FieldDescription className="text-center">
                   <Link
                     to="/forgot-password"
                     className="underline underline-offset-4 hover:text-primary"
