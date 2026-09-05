@@ -13,14 +13,16 @@ export const MIN_INVITATION_TOKEN_LENGTH = 32
 export const MAX_INVITATION_TOKEN_LENGTH = 256
 
 /**
- * Validator to use when checking whether an invitation token is usable.
+ * Validator to use when fetching an invitation by its token.
  */
-export const validateInvitationValidator = vine.create({
-  token: vine
-    .string()
-    .trim()
-    .minLength(MIN_INVITATION_TOKEN_LENGTH)
-    .maxLength(MAX_INVITATION_TOKEN_LENGTH),
+export const showInvitationValidator = vine.create({
+  params: vine.object({
+    token: vine
+      .string()
+      .trim()
+      .minLength(MIN_INVITATION_TOKEN_LENGTH)
+      .maxLength(MAX_INVITATION_TOKEN_LENGTH),
+  }),
 })
 
 /**

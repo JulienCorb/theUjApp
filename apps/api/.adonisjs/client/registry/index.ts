@@ -36,11 +36,11 @@ const routes = {
     tokens: [{"old":"/api/v1/auth/invitations/accept","type":0,"val":"api","end":""},{"old":"/api/v1/auth/invitations/accept","type":0,"val":"v1","end":""},{"old":"/api/v1/auth/invitations/accept","type":0,"val":"auth","end":""},{"old":"/api/v1/auth/invitations/accept","type":0,"val":"invitations","end":""},{"old":"/api/v1/auth/invitations/accept","type":0,"val":"accept","end":""}],
     types: placeholder as Registry['auth.invitations.accept']['types'],
   },
-  'auth.invitations.validate': {
+  'auth.invitations.show': {
     methods: ["GET","HEAD"],
-    pattern: '/api/v1/auth/invitations/validate',
-    tokens: [{"old":"/api/v1/auth/invitations/validate","type":0,"val":"api","end":""},{"old":"/api/v1/auth/invitations/validate","type":0,"val":"v1","end":""},{"old":"/api/v1/auth/invitations/validate","type":0,"val":"auth","end":""},{"old":"/api/v1/auth/invitations/validate","type":0,"val":"invitations","end":""},{"old":"/api/v1/auth/invitations/validate","type":0,"val":"validate","end":""}],
-    types: placeholder as Registry['auth.invitations.validate']['types'],
+    pattern: '/api/v1/auth/invitations/:token',
+    tokens: [{"old":"/api/v1/auth/invitations/:token","type":0,"val":"api","end":""},{"old":"/api/v1/auth/invitations/:token","type":0,"val":"v1","end":""},{"old":"/api/v1/auth/invitations/:token","type":0,"val":"auth","end":""},{"old":"/api/v1/auth/invitations/:token","type":0,"val":"invitations","end":""},{"old":"/api/v1/auth/invitations/:token","type":1,"val":"token","end":""}],
+    types: placeholder as Registry['auth.invitations.show']['types'],
   },
   'invitations.invitations.store': {
     methods: ["POST"],

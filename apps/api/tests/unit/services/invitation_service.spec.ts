@@ -180,38 +180,38 @@ test.group('InvitationService', (group) => {
     )
   })
 
-  test('validate returns valid with the invited user for a fresh token', async ({ assert }) => {
+  test('findActive returns the invitation for a fresh token', async ({ assert }) => {
     mail.fake()
-    const { user, token: rawToken } = await InvitationTestFactory.create({
-      email: 'validate@example.com',
+    const { token: rawToken } = await InvitationTestFactory.create({
+      email: 'find-active@example.com',
     })
 
-    const result = await invitationService.validate(rawToken)
+    const result = await invitationService.findActive(rawToken)
 
-    assert.equal(result.valid, true)
-    assert.equal(result.user!.id, user.id)
+    assert.isNotNull(result)
+    assert.isOk(result!.expiresAt)
   })
 
-  test('validate returns invalid for unknown, consumed and expired tokens', async ({ assert }) => {
+  test('findActive returns null for unknown, consumed and expired tokens', async ({ assert }) => {
     mail.fake()
 
-    const unknown = await invitationService.validate('x'.repeat(64))
-    assert.equal(unknown.valid, false)
+    const unknown = await invitationService.findActive('x'.repeat(64))
+    assert.isNull(unknown)
 
     const { token: consumedToken } = await InvitationTestFactory.createAccepted({
-      email: 'validate-invalid@example.com',
+      email: 'find-active-invalid@example.com',
     })
-    const consumed = await invitationService.validate(consumedToken)
-    assert.equal(consumed.valid, false)
+    const consumed = await invitationService.findActive(consumedToken)
+    assert.isNull(consumed)
 
     const { user: expiredUser, token: expiredToken } = await InvitationTestFactory.create({
-      email: 'validate-expired@example.com',
+      email: 'find-active-expired@example.com',
     })
     const invitation = await Invitation.query().where('user_id', expiredUser.id).firstOrFail()
     invitation.expiresAt = DateTime.now().minus({ days: 1 })
     await invitation.save()
 
-    const expired = await invitationService.validate(expiredToken)
-    assert.equal(expired.valid, false)
+    const expired = await invitationService.findActive(expiredToken)
+    assert.isNull(expired)
   })
 })

@@ -9,17 +9,17 @@ export type ScannedRoutes = {
     'auth.password_reset.forgot': { paramsTuple?: []; params?: {} }
     'auth.password_reset.reset': { paramsTuple?: []; params?: {} }
     'auth.invitations.accept': { paramsTuple?: []; params?: {} }
-    'auth.invitations.validate': { paramsTuple?: []; params?: {} }
+    'auth.invitations.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'invitations.invitations.store': { paramsTuple?: []; params?: {} }
     'profile.profile.show': { paramsTuple?: []; params?: {} }
     'profile.access_tokens.destroy': { paramsTuple?: []; params?: {} }
   }
   GET: {
-    'auth.invitations.validate': { paramsTuple?: []; params?: {} }
+    'auth.invitations.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'profile.profile.show': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
-    'auth.invitations.validate': { paramsTuple?: []; params?: {} }
+    'auth.invitations.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'profile.profile.show': { paramsTuple?: []; params?: {} }
   }
   POST: {

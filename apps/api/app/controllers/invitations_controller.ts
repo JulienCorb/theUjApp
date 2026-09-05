@@ -3,8 +3,9 @@ import type { HttpContext } from '@adonisjs/core/http'
 
 import InvitationPolicy from '#policies/invitation_policy'
 import InvitationService from '#services/invitation_service'
+import InvitationTransformer from '#transformers/invitation_transformer'
 import UserTransformer from '#transformers/user_transformer'
-import { acceptInvitationValidator, validateInvitationValidator } from '#validators/invitation'
+import { acceptInvitationValidator, showInvitationValidator } from '#validators/invitation'
 import { createUserValidator } from '#validators/user'
 import { setRefreshTokenCookie } from '#controllers/shared/refresh_token'
 
@@ -21,18 +22,15 @@ export default class InvitationsController {
     return response.status(201)
   }
 
-  async validate({ request, serialize }: HttpContext) {
-    const { token } = await request.validateUsing(validateInvitationValidator)
-    const { valid, user } = await this.invitationService.validate(token)
+  async show({ request, response, serialize }: HttpContext) {
+    const { params } = await request.validateUsing(showInvitationValidator)
+    const invitation = await this.invitationService.findActive(params.token)
 
-    if (!valid) {
-      return serialize({ valid: false })
+    if (!invitation) {
+      return response.notFound({ message: 'Invitation not found.' })
     }
 
-    return serialize({
-      valid: true,
-      user: UserTransformer.transform(user!),
-    })
+    return serialize({ invitation: InvitationTransformer.transform(invitation) })
   }
 
   async accept({ request, response, serialize }: HttpContext) {

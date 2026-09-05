@@ -57,23 +57,17 @@ export default class InvitationService {
   }
 
   /**
-   * Returns whether the given invitation token is still usable.
+   * Returns the invitation for the given token when it is still usable
+   * (exists, not consumed and not expired), otherwise null.
    */
-  async validate(token: string): Promise<{ valid: boolean; user?: User }> {
+  async findActive(token: string) {
     const tokenHash = this.hashToken(token)
-    const current = await Invitation.query().where('token_hash', tokenHash).first()
-    const now = DateTime.now()
 
-    if (!current || current.consumedAt || current.expiresAt.toMillis() <= now.toMillis()) {
-      return { valid: false }
-    }
-
-    const user = await User.find(current.userId)
-    if (!user || user.password) {
-      return { valid: false }
-    }
-
-    return { valid: true, user }
+    return Invitation.query()
+      .where('token_hash', tokenHash)
+      .whereNull('consumed_at')
+      .where('expires_at', '>', DateTime.now().toSQL())
+      .first()
   }
 
   /**

@@ -38,7 +38,7 @@ router
         router
           .post('invitations/accept', [controllers.Invitations, 'accept'])
           .use(invitationAcceptThrottle)
-        router.get('invitations/validate', [controllers.Invitations, 'validate'])
+        router.get('invitations/:token', [controllers.Invitations, 'show'])
       })
       .prefix('auth')
       .as('auth')

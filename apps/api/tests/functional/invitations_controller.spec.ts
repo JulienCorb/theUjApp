@@ -340,43 +340,34 @@ test.group('InvitationsController accept', (group) => {
   })
 })
 
-test.group('InvitationsController validate', (group) => {
+test.group('InvitationsController show (fetch invitation by token)', (group) => {
   group.each.setup(() => testUtils.db().wrapInGlobalTransaction())
   group.each.setup(async () => {
     await limiter.clear()
   })
 
-  test('returns valid for a fresh invitation with the invited user', async ({ client, assert }) => {
+  test('returns the invitation for a fresh token', async ({ client, assert }) => {
     mail.fake()
-    const { user, token } = await InvitationTestFactory.create({ email: 'validate@example.com' })
+    const { token } = await InvitationTestFactory.create({ email: 'show@example.com' })
 
-    const response = await client.visit('auth.invitations.validate').qs({ token }).send()
+    const response = await client.visit('auth.invitations.show', { token }).send()
 
     response.assertStatus(200)
-    response.assertBodyContains({
-      data: {
-        valid: true,
-        user: {
-          email: user.email,
-        },
-      },
-    })
-    assert.equal((response.body() as any).data.valid, true)
+    const body = response.body() as any
+    assert.isString(body.data.invitation.id)
+    assert.isNotEmpty(body.data.invitation.id)
+    assert.isOk(body.data.invitation.expiresAt)
   })
 
-  test('returns invalid for an unknown token', async ({ client, assert }) => {
-    const response = await client
-      .visit('auth.invitations.validate')
-      .qs({ token: 'x'.repeat(64) })
-      .send()
+  test('returns 404 for an unknown token', async ({ client }) => {
+    const response = await client.visit('auth.invitations.show', { token: 'x'.repeat(64) }).send()
 
-    response.assertStatus(200)
-    assert.equal((response.body() as any).data.valid, false)
+    response.assertStatus(404)
   })
 
-  test('returns invalid after the invitation was accepted', async ({ client, assert }) => {
+  test('returns 404 after the invitation was accepted', async ({ client }) => {
     mail.fake()
-    const { token } = await InvitationTestFactory.create({ email: 'used-validate@example.com' })
+    const { token } = await InvitationTestFactory.create({ email: 'used-show@example.com' })
 
     const accept = await client
       .visit('auth.invitations.accept')
@@ -388,30 +379,28 @@ test.group('InvitationsController validate', (group) => {
       .send()
     accept.assertStatus(200)
 
-    const response = await client.visit('auth.invitations.validate').qs({ token }).send()
+    const response = await client.visit('auth.invitations.show', { token }).send()
 
-    response.assertStatus(200)
-    assert.equal((response.body() as any).data.valid, false)
+    response.assertStatus(404)
   })
 
-  test('returns invalid for an expired invitation', async ({ client, assert }) => {
+  test('returns 404 for an expired invitation', async ({ client }) => {
     mail.fake()
     const { user, token } = await InvitationTestFactory.create({
-      email: 'expired-validate@example.com',
+      email: 'expired-show@example.com',
     })
 
     const invitation = await Invitation.query().where('user_id', user.id).firstOrFail()
     invitation.expiresAt = DateTime.now().minus({ days: 1 })
     await invitation.save()
 
-    const response = await client.visit('auth.invitations.validate').qs({ token }).send()
+    const response = await client.visit('auth.invitations.show', { token }).send()
 
-    response.assertStatus(200)
-    assert.equal((response.body() as any).data.valid, false)
+    response.assertStatus(404)
   })
 
   test('validation: short token returns 422', async ({ client }) => {
-    const response = await client.visit('auth.invitations.validate').qs({ token: 'short' }).send()
+    const response = await client.visit('auth.invitations.show', { token: 'short' }).send()
 
     response.assertStatus(422)
   })

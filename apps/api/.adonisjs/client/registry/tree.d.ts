@@ -15,7 +15,7 @@ export interface ApiDefinition {
     }
     invitations: {
       accept: typeof routes['auth.invitations.accept']
-      validate: typeof routes['auth.invitations.validate']
+      show: typeof routes['auth.invitations.show']
     }
   }
   invitations: {

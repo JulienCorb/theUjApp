@@ -67,16 +67,16 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/invitations_controller').default['accept']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
-  'auth.invitations.validate': {
+  'auth.invitations.show': {
     methods: ["GET","HEAD"]
-    pattern: '/api/v1/auth/invitations/validate'
+    pattern: '/api/v1/auth/invitations/:token'
     types: {
       body: {}
-      paramsTuple: []
-      params: {}
-      query: ExtractQueryForGet<InferInput<(typeof import('#validators/invitation').validateInvitationValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/invitations_controller').default['validate']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/invitations_controller').default['validate']>>> | { status: 422; response: { errors: SimpleError[] } }
+      paramsTuple: [ParamValue]
+      params: { token: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/invitation').showInvitationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/invitations_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/invitations_controller').default['show']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'invitations.invitations.store': {
