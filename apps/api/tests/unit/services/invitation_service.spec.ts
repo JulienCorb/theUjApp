@@ -124,11 +124,13 @@ test.group('InvitationService', (group) => {
 
     const { accessToken, refreshToken } = await invitationService.accept(
       rawToken,
-      'NewPassword123!'
+      'NewPassword123!',
+      { icc: '33', localPhoneNumber: '0612345678' }
     )
 
     const refreshed = await User.findOrFail(user.id)
     assert.isTrue(await hash.verify(refreshed.password!, 'NewPassword123!'))
+    assert.equal(refreshed.phoneNumber, '+33612345678')
 
     const invitation = await Invitation.query().where('user_id', user.id).firstOrFail()
     assert.isNotNull(invitation.consumedAt)
@@ -143,6 +145,69 @@ test.group('InvitationService', (group) => {
     assert.equal(refreshTokens.length, 1)
   })
 
+  test('accept trims the leading zero when building the e164 number', async ({ assert }) => {
+    mail.fake()
+    const { user, token: rawToken } = await InvitationTestFactory.create({
+      email: 'accept-phone@example.com',
+    })
+
+    await invitationService.accept(rawToken, 'NewPassword123!', {
+      icc: '33',
+      localPhoneNumber: '0612345678',
+    })
+
+    const refreshed = await User.findOrFail(user.id)
+    assert.equal(refreshed.phoneNumber, '+33612345678')
+  })
+
+  test('accept keeps the national number as-is when it has no leading zero', async ({ assert }) => {
+    mail.fake()
+    const { user, token: rawToken } = await InvitationTestFactory.create({
+      email: 'accept-phone-nozero@example.com',
+    })
+
+    await invitationService.accept(rawToken, 'NewPassword123!', {
+      icc: '44',
+      localPhoneNumber: '7123456789',
+    })
+
+    const refreshed = await User.findOrFail(user.id)
+    assert.equal(refreshed.phoneNumber, '+447123456789')
+  })
+
+  test('accept rejects a phone number already used by another account', async ({ assert }) => {
+    mail.fake()
+    await InvitationTestFactory.createAccepted({ email: 'taken@example.com' })
+    const { token: rawToken } = await InvitationTestFactory.create({
+      email: 'accept-taken-phone@example.com',
+    })
+
+    await assert.rejects(
+      () =>
+        invitationService.accept(rawToken, 'NewPassword123!', {
+          icc: '33',
+          localPhoneNumber: '612345678',
+        }),
+      'A user account already exists with this phone number'
+    )
+  })
+
+  test('accept rejects a phone number exceeding the E.164 length', async ({ assert }) => {
+    mail.fake()
+    const { token: rawToken } = await InvitationTestFactory.create({
+      email: 'accept-long-phone@example.com',
+    })
+
+    await assert.rejects(
+      () =>
+        invitationService.accept(rawToken, 'NewPassword123!', {
+          icc: '999',
+          localPhoneNumber: '123456789012345',
+        }),
+      'The phone number exceeds the maximum E.164 length'
+    )
+  })
+
   test('accept rejects a consumed token', async ({ assert }) => {
     mail.fake()
     const { token: rawToken } = await InvitationTestFactory.createAccepted({
@@ -150,7 +215,11 @@ test.group('InvitationService', (group) => {
     })
 
     await assert.rejects(
-      () => invitationService.accept(rawToken, 'AnotherPassword123!'),
+      () =>
+        invitationService.accept(rawToken, 'AnotherPassword123!', {
+          icc: '33',
+          localPhoneNumber: '612345678',
+        }),
       'Invalid or expired invitation link'
     )
   })
@@ -166,7 +235,11 @@ test.group('InvitationService', (group) => {
     await invitation.save()
 
     await assert.rejects(
-      () => invitationService.accept(rawToken, 'NewPassword123!'),
+      () =>
+        invitationService.accept(rawToken, 'NewPassword123!', {
+          icc: '33',
+          localPhoneNumber: '612345678',
+        }),
       'Invalid or expired invitation link'
     )
   })
@@ -175,7 +248,11 @@ test.group('InvitationService', (group) => {
     mail.fake()
 
     await assert.rejects(
-      () => invitationService.accept('x'.repeat(64), 'NewPassword123!'),
+      () =>
+        invitationService.accept('x'.repeat(64), 'NewPassword123!', {
+          icc: '33',
+          localPhoneNumber: '612345678',
+        }),
       'Invalid or expired invitation link'
     )
   })

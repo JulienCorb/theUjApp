@@ -23,7 +23,7 @@ test.group('ProfileController show', (group) => {
     })
   })
 
-  test('profile response contains exactly id, email, role, createdAt, updatedAt', async ({
+  test('profile response contains exactly id, email, phoneNumber, role, createdAt, updatedAt', async ({
     client,
     assert,
   }) => {
@@ -42,7 +42,7 @@ test.group('ProfileController show', (group) => {
     assert.isDefined(user.createdAt)
     assert.isDefined(user.updatedAt)
     const keys = Object.keys(user).sort()
-    assert.deepEqual(keys, ['createdAt', 'email', 'id', 'role', 'updatedAt'].sort())
+    assert.deepEqual(keys, ['createdAt', 'email', 'id', 'phoneNumber', 'role', 'updatedAt'].sort())
   })
 
   test('profile does not return password', async ({ client, assert }) => {

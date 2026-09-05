@@ -16,6 +16,11 @@ export interface InvitationTestFactoryOverrides {
 }
 
 /**
+ * Default phone used when accepting an invitation (mandatory at accept time).
+ */
+export const DEFAULT_PHONE = { icc: '33', localPhoneNumber: '612345678' }
+
+/**
  * Fixtures for the invitation flow. All methods call the real
  * InvitationService so fixtures exercise production business logic.
  *
@@ -37,8 +42,13 @@ export class InvitationTestFactory {
   static async createAccepted(overrides?: InvitationTestFactoryOverrides & { password?: string }) {
     const email = overrides?.email ?? `accepted${Date.now()}${Math.random()}@test.com`
     const password = overrides?.password ?? 'Password123!'
-    const { user, token } = await this.create({ email })
-    const { accessToken, refreshToken } = await invitationService.accept(token, password)
+    const icc = overrides?.icc ?? DEFAULT_PHONE.icc
+    const localPhoneNumber = overrides?.localPhoneNumber ?? DEFAULT_PHONE.localPhoneNumber
+    const { user, token } = await this.create({ email, icc, localPhoneNumber })
+    const { accessToken, refreshToken } = await invitationService.accept(token, password, {
+      icc,
+      localPhoneNumber,
+    })
 
     return { user, token, accessToken, refreshToken, password }
   }

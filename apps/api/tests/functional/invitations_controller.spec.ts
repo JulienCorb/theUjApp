@@ -284,6 +284,8 @@ test.group('InvitationsController accept', (group) => {
         token: inviteToken,
         password: 'NewPassword123!',
         passwordConfirmation: 'NewPassword123!',
+        icc: '33',
+        localPhoneNumber: '0612345678',
       })
       .send()
 
@@ -293,6 +295,7 @@ test.group('InvitationsController accept', (group) => {
         message: 'Account created successfully.',
         user: {
           email: 'accept@example.com',
+          phoneNumber: '+33612345678',
           role: 'client',
         },
       },
@@ -307,6 +310,8 @@ test.group('InvitationsController accept', (group) => {
 
     const refreshed = await User.findOrFail(user.id)
     assert.isNotNull(refreshed.password)
+    assert.equal(refreshed.phoneNumber, '+33612345678')
+    await db.assertHas('users', { phone_number: '+33612345678' })
 
     const invitation = await Invitation.query().where('user_id', user.id).firstOrFail()
     assert.isNotNull(invitation.consumedAt)
@@ -319,6 +324,25 @@ test.group('InvitationsController accept', (group) => {
     login.assertStatus(200)
   })
 
+  test('accepting with a phone number already in use returns 409', async ({ client }) => {
+    mail.fake()
+    await InvitationTestFactory.createAccepted({ email: 'taken@example.com' })
+    const { token } = await InvitationTestFactory.create({ email: 'phone-taken@example.com' })
+
+    const response = await client
+      .visit('auth.invitations.accept')
+      .json({
+        token,
+        password: 'NewPassword123!',
+        passwordConfirmation: 'NewPassword123!',
+        icc: '33',
+        localPhoneNumber: '612345678',
+      })
+      .send()
+
+    response.assertStatus(409)
+  })
+
   test('token is single-use: replaying it returns 400', async ({ client }) => {
     mail.fake()
     const { token } = await InvitationTestFactory.create({ email: 'replay@example.com' })
@@ -327,6 +351,8 @@ test.group('InvitationsController accept', (group) => {
       token,
       password: 'NewPassword123!',
       passwordConfirmation: 'NewPassword123!',
+      icc: '33',
+      localPhoneNumber: '612345678',
     }
     const first = await client.visit('auth.invitations.accept').json(payload).send()
     first.assertStatus(200)
@@ -349,6 +375,8 @@ test.group('InvitationsController accept', (group) => {
         token: 'x'.repeat(64),
         password: 'NewPassword123!',
         passwordConfirmation: 'NewPassword123!',
+        icc: '33',
+        localPhoneNumber: '612345678',
       })
       .send()
 
@@ -369,6 +397,8 @@ test.group('InvitationsController accept', (group) => {
         token,
         password: 'NewPassword123!',
         passwordConfirmation: 'NewPassword123!',
+        icc: '33',
+        localPhoneNumber: '612345678',
       })
       .send()
 
@@ -382,6 +412,8 @@ test.group('InvitationsController accept', (group) => {
         token: 'short',
         password: 'NewPassword123!',
         passwordConfirmation: 'NewPassword123!',
+        icc: '33',
+        localPhoneNumber: '612345678',
       })
       .send()
 
@@ -395,6 +427,8 @@ test.group('InvitationsController accept', (group) => {
         token: 'x'.repeat(64),
         password: 'short',
         passwordConfirmation: 'short',
+        icc: '33',
+        localPhoneNumber: '612345678',
       })
       .send()
 
@@ -408,6 +442,96 @@ test.group('InvitationsController accept', (group) => {
         token: 'x'.repeat(64),
         password: 'NewPassword123!',
         passwordConfirmation: 'DifferentPassword123!',
+        icc: '33',
+        localPhoneNumber: '612345678',
+      })
+      .send()
+
+    response.assertStatus(422)
+  })
+
+  test('validation: missing icc returns 422', async ({ client }) => {
+    const response = await client
+      .visit('auth.invitations.accept')
+      .json({
+        token: 'x'.repeat(64),
+        password: 'NewPassword123!',
+        passwordConfirmation: 'NewPassword123!',
+        localPhoneNumber: '612345678',
+      } as any)
+      .send()
+
+    response.assertStatus(422)
+  })
+
+  test('validation: missing local phone number returns 422', async ({ client }) => {
+    const response = await client
+      .visit('auth.invitations.accept')
+      .json({
+        token: 'x'.repeat(64),
+        password: 'NewPassword123!',
+        passwordConfirmation: 'NewPassword123!',
+        icc: '33',
+      } as any)
+      .send()
+
+    response.assertStatus(422)
+  })
+
+  test('validation: icc longer than 3 digits returns 422', async ({ client }) => {
+    const response = await client
+      .visit('auth.invitations.accept')
+      .json({
+        token: 'x'.repeat(64),
+        password: 'NewPassword123!',
+        passwordConfirmation: 'NewPassword123!',
+        icc: '1234',
+        localPhoneNumber: '612345678',
+      })
+      .send()
+
+    response.assertStatus(422)
+  })
+
+  test('validation: non-digit icc returns 422', async ({ client }) => {
+    const response = await client
+      .visit('auth.invitations.accept')
+      .json({
+        token: 'x'.repeat(64),
+        password: 'NewPassword123!',
+        passwordConfirmation: 'NewPassword123!',
+        icc: 'ab',
+        localPhoneNumber: '612345678',
+      })
+      .send()
+
+    response.assertStatus(422)
+  })
+
+  test('validation: non-digit local phone number returns 422', async ({ client }) => {
+    const response = await client
+      .visit('auth.invitations.accept')
+      .json({
+        token: 'x'.repeat(64),
+        password: 'NewPassword123!',
+        passwordConfirmation: 'NewPassword123!',
+        icc: '33',
+        localPhoneNumber: '12-345',
+      })
+      .send()
+
+    response.assertStatus(422)
+  })
+
+  test('validation: local phone number longer than 15 digits returns 422', async ({ client }) => {
+    const response = await client
+      .visit('auth.invitations.accept')
+      .json({
+        token: 'x'.repeat(64),
+        password: 'NewPassword123!',
+        passwordConfirmation: 'NewPassword123!',
+        icc: '33',
+        localPhoneNumber: '1'.repeat(16),
       })
       .send()
 
@@ -415,27 +539,21 @@ test.group('InvitationsController accept', (group) => {
   })
 
   test('accepting an invitation is rate-limited', async ({ client, assert }) => {
+    const payload = {
+      token: 'x'.repeat(64),
+      password: 'NewPassword123!',
+      passwordConfirmation: 'NewPassword123!',
+      icc: '33',
+      localPhoneNumber: '612345678',
+    }
+
     for (let i = 0; i < 10; i++) {
-      const response = await client
-        .visit('auth.invitations.accept')
-        .json({
-          token: 'x'.repeat(64),
-          password: 'NewPassword123!',
-          passwordConfirmation: 'NewPassword123!',
-        })
-        .send()
+      const response = await client.visit('auth.invitations.accept').json(payload).send()
 
       response.assertStatus(400)
     }
 
-    const response = await client
-      .visit('auth.invitations.accept')
-      .json({
-        token: 'x'.repeat(64),
-        password: 'NewPassword123!',
-        passwordConfirmation: 'NewPassword123!',
-      })
-      .send()
+    const response = await client.visit('auth.invitations.accept').json(payload).send()
 
     response.assertStatus(429)
     assert.equal(
@@ -518,6 +636,8 @@ test.group('InvitationsController show (fetch invitation by token)', (group) => 
         token,
         password: 'NewPassword123!',
         passwordConfirmation: 'NewPassword123!',
+        icc: '33',
+        localPhoneNumber: '612345678',
       })
       .send()
     accept.assertStatus(200)

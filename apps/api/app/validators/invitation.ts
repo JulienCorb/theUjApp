@@ -27,6 +27,10 @@ export const showInvitationValidator = vine.create({
 
 /**
  * Validator to use when accepting an invitation.
+ *
+ * `icc` and `localPhoneNumber` are mandatory: the accepted account is always
+ * created with a phone number. `icc` is the international calling code (1-3
+ * digits), `localPhoneNumber` is the national number (digits only, max 15).
  */
 export const acceptInvitationValidator = vine.create({
   token: vine
@@ -36,4 +40,6 @@ export const acceptInvitationValidator = vine.create({
     .maxLength(MAX_INVITATION_TOKEN_LENGTH),
   password: password(),
   passwordConfirmation: password().sameAs('password'),
+  icc: vine.string().regex(/^\d{1,3}$/),
+  localPhoneNumber: vine.string().regex(/^\d+$/).maxLength(15),
 })

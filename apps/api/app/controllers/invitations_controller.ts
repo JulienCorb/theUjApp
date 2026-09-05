@@ -34,9 +34,17 @@ export default class InvitationsController {
   }
 
   async accept({ request, response, serialize }: HttpContext) {
-    const { token, password } = await request.validateUsing(acceptInvitationValidator)
+    const { token, password, icc, localPhoneNumber } =
+      await request.validateUsing(acceptInvitationValidator)
 
-    const { user, accessToken, refreshToken } = await this.invitationService.accept(token, password)
+    const { user, accessToken, refreshToken } = await this.invitationService.accept(
+      token,
+      password,
+      {
+        icc,
+        localPhoneNumber,
+      }
+    )
     setRefreshTokenCookie(response, refreshToken)
 
     return serialize({

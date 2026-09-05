@@ -80,15 +80,20 @@ export default class InvitationService {
   }
 
   /**
-   * Consumes the given invitation token, sets the user's password and issues
-   * an access + refresh token pair (auto-login).
+   * Consumes the given invitation token, sets the user's password and phone
+   * number and issues an access + refresh token pair (auto-login).
    *
    * @throws {@link Exception} E_INVALID_INVITATION when the token is unknown,
    * already consumed or expired
+   * @throws {@link Exception} E_PHONE_INVALID when the e164 phone number is
+   * longer than the maximum E.164 length
+   * @throws {@link Exception} E_USER_PHONE_TAKEN when another account already
+   * uses the phone number
    */
   async accept(
     token: string,
-    password: string
+    password: string,
+    phone: { icc: string; localPhoneNumber: string }
   ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
     const tokenHash = this.hashToken(token)
 
@@ -114,6 +119,16 @@ export default class InvitationService {
         })
       }
 
+      const phoneNumber = this.formatE164(phone.icc, phone.localPhoneNumber)
+      const phoneOwner = await User.query({ client }).where('phone_number', phoneNumber).first()
+      if (phoneOwner) {
+        throw new Exception('A user account already exists with this phone number', {
+          status: 409,
+          code: 'E_USER_PHONE_TAKEN',
+        })
+      }
+
+      invitedUser.phoneNumber = phoneNumber
       invitedUser.useTransaction(client)
       await this.authService.changePassword(invitedUser, password)
 
@@ -127,6 +142,31 @@ export default class InvitationService {
     })
 
     return this.authService.issueTokenPair(user)
+  }
+
+  /**
+   * Formats an international calling code and national phone number into an
+   * E.164 number: `+` followed by the calling code and the national number
+   * without its leading zero. E.g. `('33', '0612345678')` → `+33612345678`.
+   *
+   * The leading zero of the national number is trimmed when present. The
+   * result is bounded to the E.164 maximum (15 digits + `+`).
+   *
+   * @throws {@link Exception} E_PHONE_INVALID when the formatted number
+   * exceeds the maximum E.164 length
+   */
+  private formatE164(icc: string, localPhoneNumber: string): string {
+    const national = localPhoneNumber.replace(/^0/, '')
+    const formatted = `+${icc}${national}`
+
+    if (formatted.length > 16) {
+      throw new Exception('The phone number exceeds the maximum E.164 length', {
+        status: 422,
+        code: 'E_PHONE_INVALID',
+      })
+    }
+
+    return formatted
   }
 
   /**
