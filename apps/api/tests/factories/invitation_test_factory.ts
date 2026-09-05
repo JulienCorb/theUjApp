@@ -11,6 +11,8 @@ const invitationService = new InvitationService(
 
 export interface InvitationTestFactoryOverrides {
   email?: string
+  icc?: string
+  localPhoneNumber?: string
 }
 
 /**
@@ -23,7 +25,11 @@ export interface InvitationTestFactoryOverrides {
 export class InvitationTestFactory {
   static async create(overrides?: InvitationTestFactoryOverrides) {
     const email = overrides?.email ?? `invited${Date.now()}${Math.random()}@test.com`
-    const { user, token } = await invitationService.invite(email, 'client')
+    const { icc, localPhoneNumber } = overrides ?? {}
+    const { user, token } = await invitationService.invite(email, 'client', {
+      icc,
+      localPhoneNumber,
+    })
 
     return { user, token }
   }

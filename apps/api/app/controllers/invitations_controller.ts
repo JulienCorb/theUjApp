@@ -14,10 +14,10 @@ export default class InvitationsController {
   constructor(protected invitationService: InvitationService) {}
 
   async store({ request, bouncer, response }: HttpContext) {
-    const { email } = await request.validateUsing(createUserValidator)
+    const { email, icc, localPhoneNumber } = await request.validateUsing(createUserValidator)
     await bouncer.with(InvitationPolicy).authorize('create')
 
-    await this.invitationService.invite(email, 'client')
+    await this.invitationService.invite(email, 'client', { icc, localPhoneNumber })
 
     return response.status(201)
   }

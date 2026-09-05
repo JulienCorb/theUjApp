@@ -15,6 +15,11 @@ import UserService from '#services/user_service'
 
 const INVITATION_TOKEN_BYTES = 48
 
+export type InvitationPhone = {
+  icc?: string | null
+  localPhoneNumber?: string | null
+}
+
 export type IssuedInvitationToken = {
   token: string
   expiresAt: DateTime
@@ -46,10 +51,14 @@ export default class InvitationService {
    * @throws {@link Exception} E_USER_ALREADY_ACTIVE when an active account
    * already exists for the email
    */
-  async invite(email: string, role: 'client'): Promise<IssuedInvitationToken & { user: User }> {
+  async invite(
+    email: string,
+    role: 'client',
+    phone: InvitationPhone = {}
+  ): Promise<IssuedInvitationToken & { user: User }> {
     const user = await this.userService.findOrCreateInvited(email, role)
 
-    const { token, expiresAt } = await this.issue(user.id)
+    const { token, expiresAt } = await this.issue(user.id, phone)
 
     await this.mailService.sendInvitationEmail(user, token, expiresAt)
 
@@ -124,7 +133,7 @@ export default class InvitationService {
    * Creates an invitation token for the user, invalidating any outstanding
    * ones.
    */
-  private async issue(userId: string): Promise<IssuedInvitationToken> {
+  private async issue(userId: string, phone: InvitationPhone = {}): Promise<IssuedInvitationToken> {
     const now = DateTime.now()
     const expiresAt = now.plus({ days: ttlDays })
     const token = randomBytes(INVITATION_TOKEN_BYTES).toString('base64url')
@@ -137,6 +146,8 @@ export default class InvitationService {
           tokenHash: this.hashToken(token),
           expiresAt,
           consumedAt: null,
+          icc: phone.icc ?? null,
+          localPhoneNumber: phone.localPhoneNumber ?? null,
         },
         { client }
       )

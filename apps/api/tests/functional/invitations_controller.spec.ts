@@ -66,6 +66,51 @@ test.group('InvitationsController store (create invitation)', (group) => {
     await db.assertHas('invitations', { user_id: user.id, consumed_at: null })
   })
 
+  test('internal user creates an invitation with an optional phone number', async ({
+    client,
+    db,
+  }) => {
+    mail.fake()
+    const { accessToken } = await UserTestFactory.createWithTokens({
+      email: 'admin-phone@example.com',
+      role: 'internal',
+    })
+
+    const response = await client
+      .visit('invitations.invitations.store')
+      .bearerToken(accessToken)
+      .json({ email: 'phone@example.com', icc: '33', localPhoneNumber: '612345678' })
+      .send()
+
+    response.assertStatus(201)
+
+    const user = await User.findByOrFail('email', 'phone@example.com')
+    await db.assertHas('invitations', {
+      user_id: user.id,
+      icc: '33',
+      local_phone_number: '612345678',
+    })
+  })
+
+  test('creating an invitation without a phone number stores nulls', async ({ client, db }) => {
+    mail.fake()
+    const { accessToken } = await UserTestFactory.createWithTokens({
+      email: 'admin-nophone@example.com',
+      role: 'internal',
+    })
+
+    const response = await client
+      .visit('invitations.invitations.store')
+      .bearerToken(accessToken)
+      .json({ email: 'nophone@example.com' })
+      .send()
+
+    response.assertStatus(201)
+
+    const user = await User.findByOrFail('email', 'nophone@example.com')
+    await db.assertHas('invitations', { user_id: user.id, icc: null, local_phone_number: null })
+  })
+
   test('re-inviting an invited email rotates the invitation link', async ({ client, assert }) => {
     const { mails } = mail.fake()
     const { accessToken } = await UserTestFactory.createWithTokens({
@@ -125,6 +170,66 @@ test.group('InvitationsController store (create invitation)', (group) => {
       .visit('invitations.invitations.store')
       .bearerToken(accessToken)
       .json({ email: 'not-an-email' })
+      .send()
+
+    response.assertStatus(422)
+  })
+
+  test('validation: icc longer than 3 digits returns 422', async ({ client }) => {
+    const { accessToken } = await UserTestFactory.createWithTokens({
+      email: 'admin-icc-long@example.com',
+      role: 'internal',
+    })
+
+    const response = await client
+      .visit('invitations.invitations.store')
+      .bearerToken(accessToken)
+      .json({ email: 'icc-long@example.com', icc: '1234' })
+      .send()
+
+    response.assertStatus(422)
+  })
+
+  test('validation: non-digit icc returns 422', async ({ client }) => {
+    const { accessToken } = await UserTestFactory.createWithTokens({
+      email: 'admin-icc-alpha@example.com',
+      role: 'internal',
+    })
+
+    const response = await client
+      .visit('invitations.invitations.store')
+      .bearerToken(accessToken)
+      .json({ email: 'icc-alpha@example.com', icc: 'ab' })
+      .send()
+
+    response.assertStatus(422)
+  })
+
+  test('validation: non-digit local phone number returns 422', async ({ client }) => {
+    const { accessToken } = await UserTestFactory.createWithTokens({
+      email: 'admin-phone-alpha@example.com',
+      role: 'internal',
+    })
+
+    const response = await client
+      .visit('invitations.invitations.store')
+      .bearerToken(accessToken)
+      .json({ email: 'phone-alpha@example.com', localPhoneNumber: '12-345' })
+      .send()
+
+    response.assertStatus(422)
+  })
+
+  test('validation: local phone number longer than 15 digits returns 422', async ({ client }) => {
+    const { accessToken } = await UserTestFactory.createWithTokens({
+      email: 'admin-phone-long@example.com',
+      role: 'internal',
+    })
+
+    const response = await client
+      .visit('invitations.invitations.store')
+      .bearerToken(accessToken)
+      .json({ email: 'phone-long@example.com', localPhoneNumber: '1'.repeat(16) })
       .send()
 
     response.assertStatus(422)
@@ -357,6 +462,44 @@ test.group('InvitationsController show (fetch invitation by token)', (group) => 
     assert.isString(body.data.invitation.id)
     assert.isNotEmpty(body.data.invitation.id)
     assert.isOk(body.data.invitation.expiresAt)
+  })
+
+  test('returns the phone number for an invitation created with one', async ({ client }) => {
+    mail.fake()
+    const { token } = await InvitationTestFactory.create({
+      email: 'show-phone@example.com',
+      icc: '33',
+      localPhoneNumber: '612345678',
+    })
+
+    const response = await client.visit('auth.invitations.show', { token }).send()
+
+    response.assertStatus(200)
+    response.assertBodyContains({
+      data: {
+        invitation: {
+          icc: '33',
+          localPhoneNumber: '612345678',
+        },
+      },
+    })
+  })
+
+  test('returns null phone fields for an invitation created without one', async ({ client }) => {
+    mail.fake()
+    const { token } = await InvitationTestFactory.create({ email: 'show-nophone@example.com' })
+
+    const response = await client.visit('auth.invitations.show', { token }).send()
+
+    response.assertStatus(200)
+    response.assertBodyContains({
+      data: {
+        invitation: {
+          icc: null,
+          localPhoneNumber: null,
+        },
+      },
+    })
   })
 
   test('returns 404 for an unknown token', async ({ client }) => {

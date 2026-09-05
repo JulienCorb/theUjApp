@@ -38,7 +38,15 @@ export const loginValidator = vine.create({
  * Invitations always create client accounts — there is no role in the
  * payload. Add an enum-typed `role` field here when the admin interface
  * allows choosing roles.
+ *
+ * `icc` and `localPhoneNumber` are optional; there is no uniqueness
+ * constraint on them.
  */
 export const createUserValidator = vine.create({
   email: email(),
+  icc: vine
+    .string()
+    .regex(/^\d{1,3}$/)
+    .optional(),
+  localPhoneNumber: vine.string().regex(/^\d+$/).maxLength(15).optional(),
 })

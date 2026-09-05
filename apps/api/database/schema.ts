@@ -48,7 +48,9 @@ export class InvitationSchema extends BaseModel {
     'consumedAt',
     'createdAt',
     'expiresAt',
+    'icc',
     'id',
+    'localPhoneNumber',
     'tokenHash',
     'updatedAt',
     'userId',
@@ -60,40 +62,14 @@ export class InvitationSchema extends BaseModel {
   declare createdAt: DateTime
   @column.dateTime()
   declare expiresAt: DateTime
+  @column()
+  declare icc: string | null
   @column({ isPrimary: true })
   declare id: string
+  @column()
+  declare localPhoneNumber: string | null
   @column()
   declare tokenHash: string
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime | null
-  @column()
-  declare userId: string
-}
-
-export class LoginChallengeSchema extends BaseModel {
-  static $columns = [
-    'attempts',
-    'codeHash',
-    'consumedAt',
-    'createdAt',
-    'expiresAt',
-    'id',
-    'updatedAt',
-    'userId',
-  ] as const
-  $columns = LoginChallengeSchema.$columns
-  @column()
-  declare attempts: number
-  @column()
-  declare codeHash: string
-  @column.dateTime()
-  declare consumedAt: DateTime | null
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime | null
-  @column.dateTime()
-  declare expiresAt: DateTime
-  @column({ isPrimary: true })
-  declare id: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
   @column()
